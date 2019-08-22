@@ -452,11 +452,11 @@ if __name__ == "__main__":
         # wrf_results = mp_pool.starmap_async(extract_wrf_data,
         #                                 [(wrf_system, config_data, tms_meta) for wrf_system in wrf_systems_list]).get()
 
-        wrf_results = mp_pool.starmap(extract_wrf_data,
-                                      [(wrf_system, config_data, tms_meta) for wrf_system in
-                                       wrf_systems_list])
-
-        print("wrf extraction results: ", wrf_results)
+        # wrf_results = mp_pool.starmap(extract_wrf_data,
+        #                               [(wrf_system, config_data, tms_meta) for wrf_system in
+        #                                wrf_systems_list])
+        #
+        # print("wrf extraction results: ", wrf_results)
 
         source_list = ""
 
