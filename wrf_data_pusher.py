@@ -22,6 +22,7 @@ from db_adapter.constants import (
     CURW_FCST_HOST,
 )
 
+
 from db_adapter.logger import logger
 
 SRI_LANKA_EXTENT = [79.5213, 5.91948, 81.879, 9.83506]
