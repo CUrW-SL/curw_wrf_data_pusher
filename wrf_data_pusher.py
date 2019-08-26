@@ -1,3 +1,4 @@
+#!/home/uwcc-admin/curw_wrf_data_pusher/venv/bin/python3
 import traceback
 from netCDF4 import Dataset
 import numpy as np
@@ -106,7 +107,7 @@ def gen_kelani_basin_rfields(source_names, version, sim_tag, rfield_host, rfield
     :param rfield_user:
     :return: True if successful, False otherwise
     """
-    rfield_command_kelani_basin = "sudo nice -n -15 nohup ./curw_rfield_extractor/gen_kelani_basin_rfield.py -m {} -v {} -s {} " \
+    rfield_command_kelani_basin = "nohup ./curw_rfield_extractor/gen_kelani_basin_rfield.py -m {} -v {} -s {} " \
                                   "2>&1 ./curw_rfield_extractor/rfield.log".format(source_names, version, sim_tag)
 
     logger.info("Generate {} kelani basin rfield files.".format(source_names))
@@ -125,7 +126,7 @@ def gen_all_d03_rfields(source_names, version, sim_tag, rfield_host, rfield_key,
        :param rfield_user:
        :return:  True if successful, False otherwise
     """
-    rfield_command_d03 = "sudo nice -n -15 nohup  ./curw_rfield_extractor/gen_SL_d03_rfield.py -m {} -v {} -s {} 2>&1 " \
+    rfield_command_d03 = "nohup  ./curw_rfield_extractor/gen_SL_d03_rfield.py -m {} -v {} -s {} 2>&1 " \
                          "./curw_rfield_extractor/rfield.log".format(source_names, version, sim_tag)
 
     logger.info("Generate {} d03 rfield files.".format(source_names))
@@ -141,7 +142,7 @@ def gen_kelani_basin_rfields_locally(source_names, version, sim_tag):
     :param sim_tag: e.g.: "evening_18hrs"
     :return: True if successful, False otherwise
     """
-    rfield_command_kelani_basin = "sudo nice -n -15 nohup /home/uwcc-admin/curw_rfield_extractor/gen_kelani_basin_rfield.py -m {} -v {} -s {} " \
+    rfield_command_kelani_basin = "nohup /home/uwcc-admin/curw_rfield_extractor/gen_kelani_basin_rfield.py -m {} -v {} -s {} " \
                                   "2>&1 /home/uwcc-admin/curw_rfield_extractor/rfield.log".format(source_names, version,
                                                                                                   sim_tag)
 
@@ -161,7 +162,7 @@ def gen_all_d03_rfields_locally(source_names, version, sim_tag):
        :param sim_tag: e.g.: "evening_18hrs"
        :return:  True if successful, False otherwise
     """
-    rfield_command_d03 = "sudo nice -n -15 nohup  /home/uwcc-admin/curw_rfield_extractor/gen_SL_d03_rfield.py -m {} -v {} -s {} 2>&1 " \
+    rfield_command_d03 = "nohup  /home/uwcc-admin/curw_rfield_extractor/gen_SL_d03_rfield.py -m {} -v {} -s {} 2>&1 " \
                          "/home/uwcc-admin/curw_rfield_extractor/rfield.log".format(source_names, version, sim_tag)
 
     logger.info("Generate {} d03 rfield files.".format(source_names))
