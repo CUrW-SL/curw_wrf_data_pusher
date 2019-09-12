@@ -300,7 +300,7 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta):
                         ts_time = datetime.strptime(time_unit_info_list[2], '%Y-%m-%dT%H:%M:%S') + timedelta(
                             minutes=times[i + 1].item())
                         t = datetime_utc_to_lk(ts_time, shift_mins=0)
-                        data_list.append([tms_id, t.strftime('%Y-%m-%d %H:%M:%S'), fgt, float(diff[i, y, x])])
+                        data_list.append([tms_id, t.strftime('%Y-%m-%d %H:%M:%S'), fgt, float('%.3f' % diff[i, y, x])])
 
                     push_rainfall_to_db(ts=ts, ts_data=data_list, tms_id=tms_id, fgt=fgt)
             return True
