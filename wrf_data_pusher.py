@@ -314,8 +314,7 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content
 
 
 def extract_wrf_data(wrf_system, config_data, tms_meta):
-    logger.info(
-        "######################################## {} #######################################".format(wrf_system))
+    logger.info("-- {} --".format(wrf_system))
 
     wrf_email_content = {}
     for date in config_data['dates']:
@@ -471,32 +470,32 @@ if __name__ == "__main__":
                                       [(wrf_system, config_data, tms_meta) for wrf_system in
                                        wrf_systems_list])
 
-        source_list = ""
-
-        for wrf_system in wrf_systems_list:
-            source_list += "WRF_{},".format(wrf_system)
-
-        source_list = source_list[:-1]
+        # source_list = ""
+        #
+        # for wrf_system in wrf_systems_list:
+        #     source_list += "WRF_{},".format(wrf_system)
+        #
+        # source_list = source_list[:-1]
 
         # kelani_basin_rfield_status = gen_kelani_basin_rfields(source_names=source_list, version=version, sim_tag=sim_tag,
         #                                         rfield_host=rfield_host, rfield_key=rfield_key, rfield_user=rfield_user)
 
-        kelani_basin_rfield_status = gen_kelani_basin_rfields_locally(source_names=source_list, version=version,
-                                                                      sim_tag=sim_tag)
-
-        if not kelani_basin_rfield_status:
-            email_content[datetime.now().strftime(
-                COMMON_DATE_TIME_FORMAT)] = "Kelani basin rfiled generation for {} failed".format(source_list)
+        # kelani_basin_rfield_status = gen_kelani_basin_rfields_locally(source_names=source_list, version=version,
+        #                                                               sim_tag=sim_tag)
+        #
+        # if not kelani_basin_rfield_status:
+        #     email_content[datetime.now().strftime(
+        #         COMMON_DATE_TIME_FORMAT)] = "Kelani basin rfiled generation for {} failed".format(source_list)
 
         # d03_rfield_status = gen_all_d03_rfields(source_names=source_list, version=version, sim_tag=sim_tag,
         #                                         rfield_host=rfield_host, rfield_key=rfield_key, rfield_user=rfield_user)
 
-        d03_rfield_status = gen_all_d03_rfields_locally(source_names=source_list, version=version, sim_tag=sim_tag)
-
-        if not d03_rfield_status:
-            email_content[
-                datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = "SL d03 rfiled generation for {} failed".format(
-                source_list)
+        # d03_rfield_status = gen_all_d03_rfields_locally(source_names=source_list, version=version, sim_tag=sim_tag)
+        #
+        # if not d03_rfield_status:
+        #     email_content[
+        #         datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = "SL d03 rfiled generation for {} failed".format(
+        #         source_list)
 
     except Exception as e:
         msg = 'Multiprocessing error.'
@@ -508,5 +507,7 @@ if __name__ == "__main__":
         destroy_Pool(pool)
         logger.info("Process finished.")
         logger.info("Email Content {}".format(json.dumps(email_content)))
-        logger.info("wrf extraction results: ", wrf_results)
+        logger.info("############ wrf extraction results ########## ")
+        for i in range(len(wrf_results)):
+            wrf_results[i]
 
