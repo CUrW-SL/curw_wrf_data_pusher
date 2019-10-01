@@ -172,7 +172,7 @@ def gen_all_d03_rfields_locally(source_names, version, sim_tag):
     return True
 
 
-def push_rainfall_to_db(ts, ts_data, tms_id, fgt):
+def push_rainfall_to_db(ts, ts_data, tms_id, fgt, wrf_email_content):
     """
 
     :param ts: timeseries class instance
@@ -183,16 +183,16 @@ def push_rainfall_to_db(ts, ts_data, tms_id, fgt):
     try:
         ts.insert_formatted_data(ts_data, True)  # upsert True
         ts.update_latest_fgt(id_=tms_id, fgt=fgt)
-        return True
     except Exception:
         msg = "Inserting the timseseries for tms_id {} and fgt {} failed.".format(ts_data[0][0], ts_data[0][2])
         logger.error(msg)
         traceback.print_exc()
-        email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-        return False
+        wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+    finally:
+        return wrf_email_content
 
 
-def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta):
+def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content):
     """
 
     :param pool: database connection pool
@@ -210,8 +210,8 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta):
     if not os.path.exists(rainnc_net_cdf_file_path):
         msg = 'no rainnc netcdf :: {}'.format(rainnc_net_cdf_file_path)
         logger.warning(msg)
-        email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-        return False
+        wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+        return wrf_email_content
     else:
 
         try:
@@ -302,19 +302,22 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta):
                         t = datetime_utc_to_lk(ts_time, shift_mins=0)
                         data_list.append([tms_id, t.strftime('%Y-%m-%d %H:%M:%S'), fgt, float('%.3f' % diff[i, y, x])])
 
-                    push_rainfall_to_db(ts=ts, ts_data=data_list, tms_id=tms_id, fgt=fgt)
-            return True
+                    push_rainfall_to_db(ts=ts, ts_data=data_list, tms_id=tms_id, fgt=fgt,
+                                        wrf_email_content=wrf_email_content)
         except Exception as e:
             msg = "netcdf file at {} reading error.".format(rainnc_net_cdf_file_path)
             logger.error(msg)
             traceback.print_exc()
-            email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            return False
+            wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+        finally:
+            return wrf_email_content
 
 
 def extract_wrf_data(wrf_system, config_data, tms_meta):
     logger.info(
         "######################################## {} #######################################".format(wrf_system))
+
+    wrf_email_content = {}
     for date in config_data['dates']:
 
         #     /wrf_nfs/wrf/4.0/18/A/2019-07-30/d03_RAINNC.nc
@@ -325,24 +328,35 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
 
         rainnc_net_cdf_file_path = os.path.join(output_dir, rainnc_net_cdf_file)
 
-        try:
-            source_name = "{}_{}".format(config_data['model'], wrf_system)
-            source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
+        source_name = "{}_{}".format(config_data['model'], wrf_system)
 
-            if source_id is None:
+        try:
+            source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
+        except Exception:
+            try:
+                time.sleep(3)
+                source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
+            except Exception:
+                msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(wrf_system)
+                logger.error(msg)
+                wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+                return wrf_email_content
+
+        if source_id is None:
+            try:
                 add_source(pool=pool, model=source_name, version=tms_meta['version'])
                 source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
-
-        except Exception:
-            msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(wrf_system)
-            logger.error(msg)
-            email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            return False
+            except Exception:
+                msg = "Exception occurred while addding new source {} {} to database.".format(source_name, tms_meta['version'])
+                logger.error(msg)
+                wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+                return wrf_email_content
 
         tms_meta['model'] = source_name
         tms_meta['source_id'] = source_id
 
-        return read_netcdf_file(pool=pool, rainnc_net_cdf_file_path=rainnc_net_cdf_file_path, tms_meta=tms_meta)
+        return read_netcdf_file(pool=pool, rainnc_net_cdf_file_path=rainnc_net_cdf_file_path, tms_meta=tms_meta,
+                                wrf_email_content=wrf_email_content)
 
 
 if __name__ == "__main__":
@@ -457,8 +471,6 @@ if __name__ == "__main__":
                                       [(wrf_system, config_data, tms_meta) for wrf_system in
                                        wrf_systems_list])
 
-        print("wrf extraction results: ", wrf_results)
-
         source_list = ""
 
         for wrf_system in wrf_systems_list:
@@ -496,3 +508,5 @@ if __name__ == "__main__":
         destroy_Pool(pool)
         logger.info("Process finished.")
         logger.info("Email Content {}".format(json.dumps(email_content)))
+        logger.info("wrf extraction results: ", wrf_results)
+
