@@ -421,11 +421,11 @@ if __name__ == "__main__":
             if opt in ("-h", "--help"):
                 usage()
                 sys.exit()
-            elif opt in ("-m", "--config"):
+            elif opt in ("-c", "--config"):
                 config_name = arg.strip()
 
         if config_name is None:
-            msg = "Config file name id not specified."
+            msg = "Config file name is not specified."
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
             sys.exit(1)
