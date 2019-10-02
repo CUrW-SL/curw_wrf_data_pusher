@@ -372,7 +372,7 @@ if __name__ == "__main__":
 
       "run_date": ["2019-04-18","2019-04-17"],
 
-      "sim_tag": "evening_18hrs",
+      "sim_tag": "gfs_d1_18",
 
       "unit": "mm",
       "unit_type": "Accumulative",
