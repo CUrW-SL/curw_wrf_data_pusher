@@ -110,3 +110,4 @@ ENV/
 
 # mypy
 .mypy_cache/
+/wrf_d1_18_config.json

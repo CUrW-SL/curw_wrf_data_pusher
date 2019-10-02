@@ -9,6 +9,7 @@ import time
 import paramiko
 import multiprocessing as mp
 import sys
+import getopt
 
 from db_adapter.base import get_Pool, destroy_Pool
 
@@ -30,6 +31,16 @@ SRI_LANKA_EXTENT = [79.5213, 5.91948, 81.879, 9.83506]
 wrf_v3_stations = {}
 
 email_content = {}
+
+
+def usage():
+    usageText = """
+    Usage: python wrf_data_pusher.py -c "wrf_d1_18_config"
+
+    -h  --help          Show usage
+    -c  --config        Config file name 
+    """
+    print(usageText)
 
 
 def read_attribute_from_config_file(attribute, config):
@@ -397,7 +408,29 @@ if __name__ == "__main__":
                     }
     """
     try:
-        config = json.loads(open('config.json').read())
+
+        config_name = None
+
+        try:
+            opts, args = getopt.getopt(sys.argv[1:], "h:c:",
+                                       ["help", "config="])
+        except getopt.GetoptError:
+            usage()
+            sys.exit(2)
+        for opt, arg in opts:
+            if opt in ("-h", "--help"):
+                usage()
+                sys.exit()
+            elif opt in ("-m", "--config"):
+                config_name = arg.strip()
+
+        if config_name is None:
+            msg = "Config file name id not specified."
+            logger.error(msg)
+            email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+            sys.exit(1)
+
+        config = json.loads(open('{}.json'.format(config_name)).read())
 
         # source details
         wrf_dir = read_attribute_from_config_file('wrf_dir', config)
