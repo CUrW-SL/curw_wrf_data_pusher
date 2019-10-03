@@ -195,10 +195,15 @@ def push_rainfall_to_db(ts, ts_data, tms_id, fgt, wrf_email_content):
         ts.insert_formatted_data(ts_data, True)  # upsert True
         ts.update_latest_fgt(id_=tms_id, fgt=fgt)
     except Exception:
-        msg = "Inserting the timseseries for tms_id {} and fgt {} failed.".format(ts_data[0][0], ts_data[0][2])
-        logger.error(msg)
-        traceback.print_exc()
-        wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+        time.sleep(5)
+        try:
+            ts.insert_formatted_data(ts_data, True)  # upsert True
+            ts.update_latest_fgt(id_=tms_id, fgt=fgt)
+        except Exception:
+            msg = "Inserting the timseseries for tms_id {} and fgt {} failed.".format(ts_data[0][0], ts_data[0][2])
+            logger.error(msg)
+            traceback.print_exc()
+            wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
     finally:
         return wrf_email_content
 
