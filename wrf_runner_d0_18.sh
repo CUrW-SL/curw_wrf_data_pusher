@@ -41,7 +41,7 @@ fi
 
 # Push WRFv4 data into the database
 echo "Running scripts to push wrf data. Logs Available in wrf_data_pusher.log file."
-python wrf_data_pusher.py -c "wrf_d1_18_config" >> wrf_d1_18_data_pusher.log 2>&1
+python wrf_data_pusher.py -c "wrf_d0_18_config" >> wrf_d1_18_data_pusher.log 2>&1
 
 # Deactivating virtual environment
 echo "Deactivating virtual environment"
