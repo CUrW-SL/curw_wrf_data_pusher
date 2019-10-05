@@ -335,10 +335,11 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
     wrf_email_content = {}
     for date in config_data['dates']:
 
-        #     /wrf_nfs/wrf/4.0/18/A/2019-07-30/d03_RAINNC.nc
+        #Buckets/wrf_nfs/wrf  /4.0/d1/00/2019-10-04/SE/d03_RAINNC.nc
 
-        output_dir = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_data_hour'],
-                                  wrf_system, date)
+        output_dir = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
+                                  config_data['gfs_data_hour'], date, wrf_system)
+
         rainnc_net_cdf_file = 'd03_RAINNC.nc'
 
         rainnc_net_cdf_file_path = os.path.join(output_dir, rainnc_net_cdf_file)
@@ -441,6 +442,7 @@ if __name__ == "__main__":
         wrf_dir = read_attribute_from_config_file('wrf_dir', config)
         model = read_attribute_from_config_file('model', config)
         version = read_attribute_from_config_file('version', config)
+        gfs_run = read_attribute_from_config_file('gfs_run', config)
         gfs_data_hour = read_attribute_from_config_file('gfs_data_hour', config)
         wrf_systems = read_attribute_from_config_file('wrf_systems', config)
         wrf_systems_list = wrf_systems.split(',')
@@ -496,6 +498,7 @@ if __name__ == "__main__":
             'version': version,
             'dates': dates,
             'wrf_dir': wrf_dir,
+            'gfs_run': gfs_run,
             'gfs_data_hour': gfs_data_hour
         }
 
