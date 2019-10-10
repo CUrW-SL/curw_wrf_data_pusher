@@ -385,18 +385,20 @@ if __name__ == "__main__":
     Config.json 
     {
       "wrf_dir": "/wrf_nfs/wrf",
+      "gfs_run": "d0",
       "gfs_data_hour": "18",
-
       "version": "4.0",
+    
       "model": "WRF",
       "wrf_systems": "A,C,E,SE",
-
+    
       "run_date": ["2019-04-18","2019-04-17"],
-
-      "sim_tag": "gfs_d1_18",
-
+    
+      "sim_tag": "gfs_d0_18",
+    
       "unit": "mm",
       "unit_type": "Accumulative",
+    
       "variable": "Precipitation",
 
       "rfield_host": "233.646.456.78",
