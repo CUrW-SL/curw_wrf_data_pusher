@@ -313,7 +313,7 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content
                     data_list = []
                     # generate timeseries for each station
                     for i in range(len(diff)):
-                        ts_time = datetime.strptime(time_unit_info_list[2], '%Y-%m-%d %H:%M:%S') + timedelta(
+                        ts_time = datetime.strptime(time_unit_info_list[2], '%Y-%m-%dT%H:%M:%S') + timedelta(
                             minutes=times[i + 1].item())
                         t = datetime_utc_to_lk(ts_time, shift_mins=0)
                         data_list.append([tms_id, t.strftime('%Y-%m-%d %H:%M:%S'), fgt, float('%.3f' % diff[i, y, x])])
