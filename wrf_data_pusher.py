@@ -551,5 +551,5 @@ if __name__ == "__main__":
         logger.info("Email Content {}".format(json.dumps(email_content)))
         logger.info("############ wrf extraction results ########## ")
         for i in range(len(wrf_results)):
-            print(wrf_results[i])
+            logger.info(wrf_results[i])
 
