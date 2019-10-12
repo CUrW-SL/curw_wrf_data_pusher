@@ -239,9 +239,9 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content
 
             nnc_fid = Dataset(rainnc_net_cdf_file_path, mode='r')
 
-            time_unit_info = nnc_fid.variables['XTIME'].units
+            time_unit_info = nnc_fid.variables['XTIME'].description
 
-            time_unit_info_list = time_unit_info.split(' ')
+            time_unit_info_list = time_unit_info.split('since ')
 
             lats = nnc_fid.variables['XLAT'][0, :, 0]
             lons = nnc_fid.variables['XLONG'][0, 0, :]
@@ -313,7 +313,7 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content
                     data_list = []
                     # generate timeseries for each station
                     for i in range(len(diff)):
-                        ts_time = datetime.strptime(time_unit_info_list[2], '%Y-%m-%dT%H:%M:%S') + timedelta(
+                        ts_time = datetime.strptime(time_unit_info_list[1], '%Y-%m-%d %H:%M:%S') + timedelta(
                             minutes=times[i + 1].item())
                         t = datetime_utc_to_lk(ts_time, shift_mins=0)
                         data_list.append([tms_id, t.strftime('%Y-%m-%d %H:%M:%S'), fgt, float('%.3f' % diff[i, y, x])])
