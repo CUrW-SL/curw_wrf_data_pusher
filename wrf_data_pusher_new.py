@@ -305,24 +305,22 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content
                             'variable_id': tms_meta['variable_id']
                         }
 
-                        for key in run_meta.keys():
-                            print(key, run_meta.get(key))
-                        # try:
-                        #     ts.insert_run(run_meta)
-                        # except Exception:
-                        #     logger.error("Exception occurred while inserting run entry {}".format(run_meta))
-                        #     traceback.print_exc()
+                        try:
+                            ts.insert_run(run_meta)
+                        except Exception:
+                            logger.error("Exception occurred while inserting run entry {}".format(run_meta))
+                            traceback.print_exc()
 
-                    # data_list = []
-                    # # generate timeseries for each station
-                    # for i in range(len(diff)):
-                    #     ts_time = datetime.strptime(time_unit_info_list[1], '%Y-%m-%d %H:%M:%S') + timedelta(
-                    #         minutes=times[i + 1].item())
-                    #     t = datetime_utc_to_lk(ts_time, shift_mins=0)
-                    #     data_list.append([tms_id, t.strftime('%Y-%m-%d %H:%M:%S'), fgt, float('%.3f' % diff[i, y, x])])
-                    #
-                    # push_rainfall_to_db(ts=ts, ts_data=data_list, tms_id=tms_id, fgt=fgt,
-                    #                     wrf_email_content=wrf_email_content)
+                    data_list = []
+                    # generate timeseries for each station
+                    for i in range(len(diff)):
+                        ts_time = datetime.strptime(time_unit_info_list[1], '%Y-%m-%d %H:%M:%S') + timedelta(
+                            minutes=times[i + 1].item())
+                        t = datetime_utc_to_lk(ts_time, shift_mins=0)
+                        data_list.append([tms_id, t.strftime('%Y-%m-%d %H:%M:%S'), fgt, float('%.3f' % diff[i, y, x])])
+
+                    push_rainfall_to_db(ts=ts, ts_data=data_list, tms_id=tms_id, fgt=fgt,
+                                        wrf_email_content=wrf_email_content)
         except Exception as e:
             msg = "netcdf file at {} reading error.".format(rainnc_net_cdf_file_path)
             logger.error(msg)
@@ -340,17 +338,13 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
     source_name = "{}_{}".format(config_data['model'], wrf_system)
 
     source_id = None
-    logger.info("1 source_name: {}".format(source_name))
 
     try:
         source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
-        logger.info("2 source_id: {}".format(source_id))
-
     except Exception:
         try:
             time.sleep(3)
             source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
-            logger.info("3 source_id: {}".format(source_id))
         except Exception:
             msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(wrf_system)
             logger.error(msg)
@@ -358,12 +352,10 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
             return wrf_email_content
 
     if source_id is None:
-        logger.info("4 source_id: {}".format(source_id))
 
         try:
             add_source(pool=pool, model=source_name, version=tms_meta['version'])
             source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
-            logger.info("5 source_id: {}".format(source_id))
         except Exception:
             msg = "Exception occurred while addding new source {} {} to database.".format(source_name,
                                                                                           tms_meta['version'])
@@ -373,7 +365,6 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
 
     tms_meta['model'] = source_name
     tms_meta['source_id'] = source_id
-    logger.info("6 source_id: {}".format(tms_meta['source_id']))
 
     for date in config_data['dates']:
 
@@ -530,30 +521,30 @@ if __name__ == "__main__":
 
         source_list = ""
 
-        # for wrf_system in wrf_systems_list:
-        #     source_list += "WRF_{},".format(wrf_system)
-        #
-        # source_list = source_list[:-1]
-        #
-        # # kelani_basin_rfield_status = gen_kelani_basin_rfields(source_names=source_list, version=version, sim_tag=sim_tag,
-        # #                                         rfield_host=rfield_host, rfield_key=rfield_key, rfield_user=rfield_user)
-        #
-        # kelani_basin_rfield_status = gen_kelani_basin_rfields_locally(source_names=source_list, version=version,
-        #                                                               sim_tag=sim_tag)
-        #
-        # if not kelani_basin_rfield_status:
-        #     email_content[datetime.now().strftime(
-        #         COMMON_DATE_TIME_FORMAT)] = "Kelani basin rfiled generation for {} failed".format(source_list)
-        #
-        # # d03_rfield_status = gen_all_d03_rfields(source_names=source_list, version=version, sim_tag=sim_tag,
-        # #                                         rfield_host=rfield_host, rfield_key=rfield_key, rfield_user=rfield_user)
-        #
-        # d03_rfield_status = gen_all_d03_rfields_locally(source_names=source_list, version=version, sim_tag=sim_tag)
-        #
-        # if not d03_rfield_status:
-        #     email_content[
-        #         datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = "SL d03 rfiled generation for {} failed".format(
-        #         source_list)
+        for wrf_system in wrf_systems_list:
+            source_list += "WRF_{},".format(wrf_system)
+
+        source_list = source_list[:-1]
+
+        # kelani_basin_rfield_status = gen_kelani_basin_rfields(source_names=source_list, version=version, sim_tag=sim_tag,
+        #                                         rfield_host=rfield_host, rfield_key=rfield_key, rfield_user=rfield_user)
+
+        kelani_basin_rfield_status = gen_kelani_basin_rfields_locally(source_names=source_list, version=version,
+                                                                      sim_tag=sim_tag)
+
+        if not kelani_basin_rfield_status:
+            email_content[datetime.now().strftime(
+                COMMON_DATE_TIME_FORMAT)] = "Kelani basin rfiled generation for {} failed".format(source_list)
+
+        # d03_rfield_status = gen_all_d03_rfields(source_names=source_list, version=version, sim_tag=sim_tag,
+        #                                         rfield_host=rfield_host, rfield_key=rfield_key, rfield_user=rfield_user)
+
+        d03_rfield_status = gen_all_d03_rfields_locally(source_names=source_list, version=version, sim_tag=sim_tag)
+
+        if not d03_rfield_status:
+            email_content[
+                datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = "SL d03 rfiled generation for {} failed".format(
+                source_list)
 
     except Exception as e:
         msg = 'Multiprocessing error.'
