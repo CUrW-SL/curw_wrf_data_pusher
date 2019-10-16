@@ -337,17 +337,17 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
     source_name = "{}_{}".format(config_data['model'], wrf_system)
 
     source_id = None
-    logger.info("1 source_id: ", source_name)
+    logger.info("1 source_name: {}".format(source_name))
 
     try:
         source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
-        logger.info("2 source_id: ", source_id)
+        logger.info("2 source_id: {}".format(source_id))
 
     except Exception:
         try:
             time.sleep(3)
             source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
-            logger.info("3 source_id: ", source_id)
+            logger.info("3 source_id: {}".format(source_id))
         except Exception:
             msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(wrf_system)
             logger.error(msg)
@@ -355,12 +355,12 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
             return wrf_email_content
 
     if source_id is None:
-        logger.info("4 source_id: ", source_id)
+        logger.info("4 source_id: {}".format(source_id))
 
         try:
             add_source(pool=pool, model=source_name, version=tms_meta['version'])
             source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
-            logger.info("5 source_id: ", source_id)
+            logger.info("5 source_id: {}".format(source_id))
         except Exception:
             msg = "Exception occurred while addding new source {} {} to database.".format(source_name,
                                                                                           tms_meta['version'])
@@ -370,7 +370,7 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
 
     tms_meta['model'] = source_name
     tms_meta['source_id'] = source_id
-    logger.info("6 source_id: ", tms_meta['source_id'])
+    logger.info("6 source_id: {}".format(tms_meta['source_id']))
 
     # for date in config_data['dates']:
     #
