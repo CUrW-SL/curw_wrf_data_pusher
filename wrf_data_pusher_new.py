@@ -363,6 +363,7 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
 
     tms_meta['model'] = source_name
     tms_meta['source_id'] = source_id
+    print("source_id: ", source_id)
 
     for date in config_data['dates']:
 
