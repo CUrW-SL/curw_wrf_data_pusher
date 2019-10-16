@@ -372,19 +372,19 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
     tms_meta['source_id'] = source_id
     logger.info("6 source_id: ", tms_meta['source_id'])
 
-    for date in config_data['dates']:
-
-        #Buckets/wrf_nfs/wrf  /4.0/d1/00/2019-10-04/SE/d03_RAINNC.nc
-
-        output_dir = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
-                                  config_data['gfs_data_hour'], date, wrf_system)
-
-        rainnc_net_cdf_file = 'd03_RAINNC.nc'
-
-        rainnc_net_cdf_file_path = os.path.join(output_dir, rainnc_net_cdf_file)
-
-        return read_netcdf_file(pool=pool, rainnc_net_cdf_file_path=rainnc_net_cdf_file_path, tms_meta=tms_meta,
-                                wrf_email_content=wrf_email_content)
+    # for date in config_data['dates']:
+    #
+    #     #Buckets/wrf_nfs/wrf  /4.0/d1/00/2019-10-04/SE/d03_RAINNC.nc
+    #
+    #     output_dir = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
+    #                               config_data['gfs_data_hour'], date, wrf_system)
+    #
+    #     rainnc_net_cdf_file = 'd03_RAINNC.nc'
+    #
+    #     rainnc_net_cdf_file_path = os.path.join(output_dir, rainnc_net_cdf_file)
+    #
+    #     return read_netcdf_file(pool=pool, rainnc_net_cdf_file_path=rainnc_net_cdf_file_path, tms_meta=tms_meta,
+    #                             wrf_email_content=wrf_email_content)
 
 
 if __name__ == "__main__":
