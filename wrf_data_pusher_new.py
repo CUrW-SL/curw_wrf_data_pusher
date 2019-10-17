@@ -513,9 +513,9 @@ if __name__ == "__main__":
         # wrf_results = mp_pool.starmap_async(extract_wrf_data,
         #                                 [(wrf_system, config_data, tms_meta) for wrf_system in wrf_systems_list]).get()
 
-        # wrf_results = mp_pool.starmap(extract_wrf_data,
-        #                               [(wrf_system, config_data, tms_meta) for wrf_system in
-        #                                wrf_systems_list])
+        wrf_results = mp_pool.starmap(extract_wrf_data,
+                                      [(wrf_system, config_data, tms_meta) for wrf_system in
+                                       wrf_systems_list])
 
         source_list = ""
 
@@ -554,7 +554,7 @@ if __name__ == "__main__":
         destroy_Pool(pool)
         logger.info("Process finished.")
         logger.info("Email Content {}".format(json.dumps(email_content)))
-        # logger.info("############ wrf extraction results ########## ")
-        # for i in range(len(wrf_results)):
-        #     logger.info(wrf_results[i])
+        logger.info("############ wrf extraction results ########## ")
+        for i in range(len(wrf_results)):
+            logger.info(wrf_results[i])
 
