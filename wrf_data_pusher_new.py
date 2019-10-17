@@ -335,38 +335,36 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
 
     wrf_email_content = {}
 
-    source_name = "{}_{}".format(config_data['model'], wrf_system)
-
-    source_id = None
-
-    try:
-        source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
-    except Exception:
-        try:
-            time.sleep(3)
-            source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
-        except Exception:
-            msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(wrf_system)
-            logger.error(msg)
-            wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            return wrf_email_content
-
-    if source_id is None:
-
-        try:
-            add_source(pool=pool, model=source_name, version=tms_meta['version'])
-            source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
-        except Exception:
-            msg = "Exception occurred while addding new source {} {} to database.".format(source_name,
-                                                                                          tms_meta['version'])
-            logger.error(msg)
-            wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            return wrf_email_content
-
-    tms_meta['model'] = source_name
-    tms_meta['source_id'] = source_id
-
     for date in config_data['dates']:
+        source_name = "{}_{}".format(config_data['model'], wrf_system)
+
+        source_id = None
+
+        try:
+            source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
+        except Exception:
+            try:
+                time.sleep(3)
+                source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
+            except Exception:
+                msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(wrf_system)
+                logger.error(msg)
+                wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+                return wrf_email_content
+
+        if source_id is None:
+            try:
+                add_source(pool=pool, model=source_name, version=tms_meta['version'])
+                source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
+            except Exception:
+                msg = "Exception occurred while addding new source {} {} to database.".format(source_name,
+                                                                                              tms_meta['version'])
+                logger.error(msg)
+                wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+                return wrf_email_content
+
+        tms_meta['model'] = source_name
+        tms_meta['source_id'] = source_id
 
         #Buckets/wrf_nfs/wrf  /4.0/d1/00/2019-10-04/SE/d03_RAINNC.nc
 
