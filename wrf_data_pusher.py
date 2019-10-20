@@ -239,9 +239,9 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content
 
             nnc_fid = Dataset(rainnc_net_cdf_file_path, mode='r')
 
-            time_unit_info = nnc_fid.variables['XTIME'].units
+            time_unit_info = nnc_fid.variables['XTIME'].description
 
-            time_unit_info_list = time_unit_info.split(' ')
+            time_unit_info_list = time_unit_info.split('since ')
 
             lats = nnc_fid.variables['XLAT'][0, :, 0]
             lons = nnc_fid.variables['XLONG'][0, 0, :]
@@ -304,6 +304,7 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content
                             'unit_id': tms_meta['unit_id'],
                             'variable_id': tms_meta['variable_id']
                         }
+
                         try:
                             ts.insert_run(run_meta)
                         except Exception:
@@ -313,10 +314,10 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content
                     data_list = []
                     # generate timeseries for each station
                     for i in range(len(diff)):
-                        ts_time = datetime.strptime(time_unit_info_list[2], '%Y-%m-%dT%H:%M:%S') + timedelta(
+                        ts_time = datetime.strptime(time_unit_info_list[1], '%Y-%m-%d %H:%M:%S') + timedelta(
                             minutes=times[i + 1].item())
                         t = datetime_utc_to_lk(ts_time, shift_mins=0)
-                        data_list.append([tms_id, t.strftime('%Y-%m-%d %H:%M:%S'), fgt, float('%.3f' % diff[i, y, x])])
+                        data_list.append([tms_id, t.strftime('%Y-%m-%d %H:%M:00'), fgt, float('%.3f' % diff[i, y, x])])
 
                     push_rainfall_to_db(ts=ts, ts_data=data_list, tms_id=tms_id, fgt=fgt,
                                         wrf_email_content=wrf_email_content)
@@ -334,42 +335,42 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
 
     wrf_email_content = {}
 
-    source_name = "{}_{}".format(config_data['model'], wrf_system)
-
-    source_id = None
-
-    try:
-        source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
-    except Exception:
-        try:
-            time.sleep(5)
-            source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
-        except Exception:
-            msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(wrf_system)
-            logger.error(msg)
-            wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            return wrf_email_content
-
-    if source_id is None:
-        try:
-            add_source(pool=pool, model=source_name, version=tms_meta['version'])
-            source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
-        except Exception:
-            msg = "Exception occurred while addding new source {} {} to database.".format(source_name,
-                                                                                          tms_meta['version'])
-            logger.error(msg)
-            wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            return wrf_email_content
-
-    tms_meta['model'] = source_name
-    tms_meta['source_id'] = source_id
-
     for date in config_data['dates']:
+        source_name = "{}_{}".format(config_data['model'], wrf_system)
 
-        #     /wrf_nfs/wrf/4.0/18/A/2019-07-30/d03_RAINNC.nc
+        source_id = None
 
-        output_dir = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_data_hour'],
-                                  wrf_system, date)
+        try:
+            source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
+        except Exception:
+            try:
+                time.sleep(3)
+                source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
+            except Exception:
+                msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(wrf_system)
+                logger.error(msg)
+                wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+                return wrf_email_content
+
+        if source_id is None:
+            try:
+                add_source(pool=pool, model=source_name, version=tms_meta['version'])
+                source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
+            except Exception:
+                msg = "Exception occurred while addding new source {} {} to database.".format(source_name,
+                                                                                              tms_meta['version'])
+                logger.error(msg)
+                wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+                return wrf_email_content
+
+        tms_meta['model'] = source_name
+        tms_meta['source_id'] = source_id
+
+        #Buckets/wrf_nfs/wrf  /4.0/d1/00/2019-10-04/SE/d03_RAINNC.nc
+
+        output_dir = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
+                                  config_data['gfs_data_hour'], date, wrf_system)
+
         rainnc_net_cdf_file = 'd03_RAINNC.nc'
 
         rainnc_net_cdf_file_path = os.path.join(output_dir, rainnc_net_cdf_file)
@@ -384,18 +385,20 @@ if __name__ == "__main__":
     Config.json 
     {
       "wrf_dir": "/wrf_nfs/wrf",
+      "gfs_run": "d0",
       "gfs_data_hour": "18",
-
       "version": "4.0",
+    
       "model": "WRF",
       "wrf_systems": "A,C,E,SE",
-
+    
       "run_date": ["2019-04-18","2019-04-17"],
-
-      "sim_tag": "gfs_d1_18",
-
+    
+      "sim_tag": "gfs_d0_18",
+    
       "unit": "mm",
       "unit_type": "Accumulative",
+    
       "variable": "Precipitation",
 
       "rfield_host": "233.646.456.78",
@@ -445,6 +448,7 @@ if __name__ == "__main__":
         wrf_dir = read_attribute_from_config_file('wrf_dir', config)
         model = read_attribute_from_config_file('model', config)
         version = read_attribute_from_config_file('version', config)
+        gfs_run = read_attribute_from_config_file('gfs_run', config)
         gfs_data_hour = read_attribute_from_config_file('gfs_data_hour', config)
         wrf_systems = read_attribute_from_config_file('wrf_systems', config)
         wrf_systems_list = wrf_systems.split(',')
@@ -500,6 +504,7 @@ if __name__ == "__main__":
             'version': version,
             'dates': dates,
             'wrf_dir': wrf_dir,
+            'gfs_run': gfs_run,
             'gfs_data_hour': gfs_data_hour
         }
 

@@ -2,9 +2,10 @@
 
 # Print execution date time
 echo `date`
-TODAY=$(date -u -d '+5 hour +30 min' '+%F +%T')
+TODAY=$(date -u -d '+5 hour +30 min' '+%F')
 
-echo $TODAY
+WRF_D0_18_RAINNC_PATH="/mnt/disks/wrf_nfs/wrf/4.0/d0/18/$TODAY"
+echo $WRF_D0_18_RAINNC_PATH
 #ncdump -c A/d03_RAINNC.nc | grep -A3 dimensions:
 #dimensions:
 #	Time = 289 ;
