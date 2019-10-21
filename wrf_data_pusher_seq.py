@@ -1,4 +1,5 @@
 #!/home/uwcc-admin/curw_wrf_data_pusher/venv/bin/python3
+# extract a given wrf output
 import traceback
 from netCDF4 import Dataset
 import numpy as np
@@ -37,7 +38,7 @@ def usage():
     -s [wrf_system] -D [date_list] 
 
     -h  --help          Show usage
-    -c  --config        Config file name or path. e.g: "wrf_d1_18_config.json"
+    -c  --config        Config file name or path. e.g: "wrf_config.json"
     -d  --dir           WRF root directory. e.g.: "/mnt/disks/wrf_nfs/wrf"
     -r  --run           GFS run. e.g: d0 (for yesterday gfs data), d1 (for today gfs data) 
     -H  --hour          GFS data hour. e.g: 00,06,12,18

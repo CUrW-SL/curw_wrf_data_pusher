@@ -1,5 +1,5 @@
 #!/home/uwcc-admin/curw_wrf_data_pusher/venv/bin/python3
-# before passing fgt to rfield generation scripts
+# extract all wrf systems for a given date
 import traceback
 from netCDF4 import Dataset
 import numpy as np
@@ -299,9 +299,7 @@ if __name__ == "__main__":
     
       "model": "WRF",
       "wrf_systems": "A,C,E,SE",
-    
-      "run_date": ["2019-04-18","2019-04-17"],
-    
+        
       "sim_tag": "gfs_d0_18",
     
       "unit": "mm",
