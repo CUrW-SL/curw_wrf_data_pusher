@@ -77,38 +77,6 @@ def datetime_utc_to_lk(timestamp_utc, shift_mins=0):
     return timestamp_utc + timedelta(hours=5, minutes=30 + shift_mins)
 
 
-def ssh_command(ssh, command):
-    ssh.invoke_shell()
-    stdin, stdout, stderr = ssh.exec_command(command)
-    if stdout.channel.recv_exit_status() is not 0:
-        return False
-    return True
-    # for line in stdout.readlines():
-    #     logger.info(line)
-    # for line in stderr.readlines():
-    #     logger.error(line)
-
-
-def run_remote_command(host, user, key, command):
-    """
-    :return:  True if successful, False otherwise
-    """
-
-    try:
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(hostname=host, username=user, key_filename=key)
-
-        return ssh_command(ssh, command)
-    except Exception as e:
-        msg = "Connection failed :: {} :: {}".format(host, command.split('2>&1')[0])
-        logger.error(msg)
-        email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-        return False
-    finally:
-        ssh.close()
-
-
 def push_rainfall_to_db(ts, ts_data, tms_id, fgt, wrf_email_content):
     """
 
