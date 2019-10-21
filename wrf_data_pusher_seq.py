@@ -1,5 +1,5 @@
 #!/home/uwcc-admin/curw_wrf_data_pusher/venv/bin/python3
-# extract a given wrf output
+# extract a given wrf output, for a given run date
 import traceback
 from netCDF4 import Dataset
 import numpy as np
@@ -35,7 +35,7 @@ email_content = {}
 def usage():
     usageText = """
     Usage: ./wrf_data_pusher.py [-D] -c [config_file_path] -d [wrf_root_directory] -r [gfs_run] -H [gfs_data_hour]
-    -s [wrf_system] -D [date_list] 
+    -s [wrf_system] -D [date] 
 
     -h  --help          Show usage
     -c  --config        Config file name or path. e.g: "wrf_config.json"
@@ -43,7 +43,7 @@ def usage():
     -r  --run           GFS run. e.g: d0 (for yesterday gfs data), d1 (for today gfs data) 
     -H  --hour          GFS data hour. e.g: 00,06,12,18
     -s  --wrf_system    WRF System. e.g.: A,C,E,SE
-    -D  --dates         list of dates. e.g.: 2019-10-07,2019-10-08,2019-10-09
+    -D  --date          Run date. e.g.: 2019-10-07 (date of the directory containing the wrf output to be extracted)
     
     
     """
@@ -271,18 +271,16 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
     tms_meta['model'] = source_name
     tms_meta['source_id'] = source_id
 
-    for date in config_data['dates']:
+    #Buckets/wrf_nfs/wrf/4.0/d1/00/2019-10-04/SE/d03_RAINNC.nc
 
-        #Buckets/wrf_nfs/wrf/4.0/d1/00/2019-10-04/SE/d03_RAINNC.nc
+    output_dir = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
+                              config_data['gfs_data_hour'], config_data['date'], wrf_system)
 
-        output_dir = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
-                                  config_data['gfs_data_hour'], date, wrf_system)
+    rainnc_net_cdf_file = 'd03_RAINNC.nc'
 
-        rainnc_net_cdf_file = 'd03_RAINNC.nc'
+    rainnc_net_cdf_file_path = os.path.join(output_dir, rainnc_net_cdf_file)
 
-        rainnc_net_cdf_file_path = os.path.join(output_dir, rainnc_net_cdf_file)
-
-        return read_netcdf_file(pool=pool, rainnc_net_cdf_file_path=rainnc_net_cdf_file_path, tms_meta=tms_meta)
+    return read_netcdf_file(pool=pool, rainnc_net_cdf_file_path=rainnc_net_cdf_file_path, tms_meta=tms_meta)
 
 
 if __name__ == "__main__":
@@ -323,11 +321,11 @@ if __name__ == "__main__":
         gfs_run = None
         gfs_data_hour = None
         wrf_system = None
-        date_list = None
+        date = None
 
         try:
             opts, args = getopt.getopt(sys.argv[1:], "h:c:d:r:H:s:D:",
-                                       ["help", "config=", "dir=", "run=", "hour=", "wrf_system=", "dates="])
+                                       ["help", "config=", "dir=", "run=", "hour=", "wrf_system=", "date="])
         except getopt.GetoptError:
             usage()
             sys.exit(2)
@@ -345,8 +343,8 @@ if __name__ == "__main__":
                 gfs_data_hour = arg.strip()
             elif opt in ("-s", "--wrf_system"):
                 wrf_system = arg.strip()
-            elif opt in ("-D", "--dates"):
-                date_list = arg.strip()
+            elif opt in ("-D", "--date"):
+                date = arg.strip()
 
         if config_path is None:
             msg = "Config file name is not specified."
@@ -394,12 +392,11 @@ if __name__ == "__main__":
         # variable details
         variable = read_attribute_from_config_file('variable', config)
 
-        if date_list is None:
-            msg = "Date list not specified."
+        if date is None:
+            msg = "Date is not specified."
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
             sys.exit(1)
-        dates = date_list.split(',')
 
         pool = get_Pool(host=CURW_FCST_HOST, port=CURW_FCST_PORT, user=CURW_FCST_USERNAME, password=CURW_FCST_PASSWORD,
                         db=CURW_FCST_DATABASE)
@@ -428,7 +425,7 @@ if __name__ == "__main__":
         config_data = {
             'model': model,
             'version': version,
-            'dates': dates,
+            'date': date,
             'wrf_dir': wrf_dir,
             'gfs_run': gfs_run,
             'gfs_data_hour': gfs_data_hour
