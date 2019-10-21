@@ -77,6 +77,22 @@ def datetime_utc_to_lk(timestamp_utc, shift_mins=0):
     return timestamp_utc + timedelta(hours=5, minutes=30 + shift_mins)
 
 
+def update_latest_fgt(ts, tms_id, fgt, wrf_email_content):
+    try:
+        ts.update_latest_fgt(id_=tms_id, fgt=fgt)
+    except Exception:
+        try:
+            time.sleep(5)
+            ts.update_latest_fgt(id_=tms_id, fgt=fgt)
+        except Exception:
+            msg = "Updating fgt {} for tms_id {} failed.".format(fgt, tms_id)
+            logger.error(msg)
+            traceback.print_exc()
+            wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+    finally:
+        return wrf_email_content
+
+
 def push_rainfall_to_db(ts, ts_data, tms_id, fgt, wrf_email_content):
     """
 
@@ -87,12 +103,12 @@ def push_rainfall_to_db(ts, ts_data, tms_id, fgt, wrf_email_content):
 
     try:
         ts.insert_formatted_data(ts_data, True)  # upsert True
-        ts.update_latest_fgt(id_=tms_id, fgt=fgt)
+        update_latest_fgt(ts, tms_id, fgt)
     except Exception:
-        time.sleep(5)
         try:
+            time.sleep(5)
             ts.insert_formatted_data(ts_data, True)  # upsert True
-            ts.update_latest_fgt(id_=tms_id, fgt=fgt)
+            update_latest_fgt(ts, tms_id, fgt)
         except Exception:
             msg = "Inserting the timseseries for tms_id {} and fgt {} failed.".format(ts_data[0][0], ts_data[0][2])
             logger.error(msg)
