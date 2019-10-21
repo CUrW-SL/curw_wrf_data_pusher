@@ -1,4 +1,5 @@
 #!/home/uwcc-admin/curw_wrf_data_pusher/venv/bin/python3
+# before passing fgt to rfield generation scripts
 import traceback
 from netCDF4 import Dataset
 import numpy as np
@@ -35,10 +36,11 @@ email_content = {}
 
 def usage():
     usageText = """
-    Usage: python wrf_data_pusher.py -c "wrf_d1_18_config"
+    Usage: python wrf_data_pusher.py -c "wrf_d1_18_config" -d "2019-10-19"
 
     -h  --help          Show usage
     -c  --config        Config file name 
+    -d  --date          Run date (date of the netcdf file containing folder)
     """
     print(usageText)
 
@@ -422,10 +424,11 @@ if __name__ == "__main__":
     try:
 
         config_name = None
+        date = None
 
         try:
-            opts, args = getopt.getopt(sys.argv[1:], "h:c:",
-                                       ["help", "config="])
+            opts, args = getopt.getopt(sys.argv[1:], "h:c:d:",
+                                       ["help", "config=", "date="])
         except getopt.GetoptError:
             usage()
             sys.exit(2)
@@ -435,6 +438,14 @@ if __name__ == "__main__":
                 sys.exit()
             elif opt in ("-c", "--config"):
                 config_name = arg.strip()
+            elif opt in ("-d", "--date"):
+                date = arg.strip()
+
+        if date is None:
+            msg = "Date; run date is not specified."
+            logger.error(msg)
+            email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+            sys.exit(1)
 
         if config_name is None:
             msg = "Config file name is not specified."
@@ -463,18 +474,6 @@ if __name__ == "__main__":
         # variable details
         variable = read_attribute_from_config_file('variable', config)
 
-        # rfield params
-        # rfield_host = read_attribute_from_config_file('rfield_host', config)
-        # rfield_user = read_attribute_from_config_file('rfield_user', config)
-        # rfield_key = read_attribute_from_config_file('rfield_key', config)
-
-        dates = []
-
-        if 'run_date' in config and (config['run_date'] != ""):
-            dates = config['run_date']
-        else:
-            dates.append((datetime.now() + timedelta(hours=5, minutes=30)).strftime('%Y-%m-%d'))
-
         pool = get_Pool(host=CURW_FCST_HOST, port=CURW_FCST_PORT, user=CURW_FCST_USERNAME, password=CURW_FCST_PASSWORD,
                         db=CURW_FCST_DATABASE)
 
@@ -502,7 +501,7 @@ if __name__ == "__main__":
         config_data = {
             'model': model,
             'version': version,
-            'dates': dates,
+            'date': date,
             'wrf_dir': wrf_dir,
             'gfs_run': gfs_run,
             'gfs_data_hour': gfs_data_hour
