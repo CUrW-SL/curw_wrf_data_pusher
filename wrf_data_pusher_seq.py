@@ -437,7 +437,7 @@ if __name__ == "__main__":
         extract_wrf_data(wrf_system, config_data, tms_meta)
 
     except Exception as e:
-        msg = 'Multiprocessing error.'
+        msg = 'Config data loading error.'
         logger.error(msg)
         email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
         traceback.print_exc()
