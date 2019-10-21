@@ -95,7 +95,6 @@ def update_latest_fgt(ts, tms_id, fgt, wrf_email_content):
 
 def push_rainfall_to_db(ts, ts_data, tms_id, fgt, wrf_email_content):
     """
-
     :param ts: timeseries class instance
     :param ts_data: timeseries
     :return:
@@ -245,48 +244,47 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
 
     wrf_email_content = {}
 
-    for date in config_data['dates']:
-        source_name = "{}_{}".format(config_data['model'], wrf_system)
+    source_name = "{}_{}".format(config_data['model'], wrf_system)
 
-        source_id = None
+    source_id = None
 
+    try:
+        source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
+    except Exception:
         try:
+            time.sleep(3)
             source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
         except Exception:
-            try:
-                time.sleep(3)
-                source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
-            except Exception:
-                msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(wrf_system)
-                logger.error(msg)
-                wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-                return wrf_email_content
+            msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(wrf_system)
+            logger.error(msg)
+            wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+            return wrf_email_content
 
-        if source_id is None:
-            try:
-                add_source(pool=pool, model=source_name, version=tms_meta['version'])
-                source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
-            except Exception:
-                msg = "Exception occurred while addding new source {} {} to database.".format(source_name,
-                                                                                              tms_meta['version'])
-                logger.error(msg)
-                wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-                return wrf_email_content
+    if source_id is None:
+        try:
+            add_source(pool=pool, model=source_name, version=tms_meta['version'])
+            source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
+        except Exception:
+            msg = "Exception occurred while addding new source {} {} to database.".format(source_name,
+                                                                                          tms_meta['version'])
+            logger.error(msg)
+            wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+            return wrf_email_content
 
-        tms_meta['model'] = source_name
-        tms_meta['source_id'] = source_id
+    tms_meta['model'] = source_name
+    tms_meta['source_id'] = source_id
 
-        #Buckets/wrf_nfs/wrf  /4.0/d1/00/2019-10-04/SE/d03_RAINNC.nc
+    #Buckets/wrf_nfs/wrf  /4.0/d1/00/2019-10-04/SE/d03_RAINNC.nc
 
-        output_dir = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
-                                  config_data['gfs_data_hour'], date, wrf_system)
+    output_dir = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
+                              config_data['gfs_data_hour'], config_data['date'], wrf_system)
 
-        rainnc_net_cdf_file = 'd03_RAINNC.nc'
+    rainnc_net_cdf_file = 'd03_RAINNC.nc'
 
-        rainnc_net_cdf_file_path = os.path.join(output_dir, rainnc_net_cdf_file)
+    rainnc_net_cdf_file_path = os.path.join(output_dir, rainnc_net_cdf_file)
 
-        return read_netcdf_file(pool=pool, rainnc_net_cdf_file_path=rainnc_net_cdf_file_path, tms_meta=tms_meta,
-                                wrf_email_content=wrf_email_content)
+    return read_netcdf_file(pool=pool, rainnc_net_cdf_file_path=rainnc_net_cdf_file_path, tms_meta=tms_meta,
+                            wrf_email_content=wrf_email_content)
 
 
 if __name__ == "__main__":
