@@ -393,7 +393,7 @@ if __name__ == "__main__":
         variable = read_attribute_from_config_file('variable', config)
 
         if date is None:
-            msg = "Date is not specified."
+            msg = "Run date is not specified."
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
             sys.exit(1)
