@@ -420,7 +420,6 @@ if __name__ == "__main__":
                                       [(wrf_system, config_data, tms_meta) for wrf_system in
                                        wrf_systems_list])
 
-
     except Exception as e:
         msg = 'Multiprocessing error.'
         logger.error(msg)
