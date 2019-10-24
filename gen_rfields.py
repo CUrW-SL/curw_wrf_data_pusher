@@ -90,43 +90,6 @@ def write_to_file(file_name, data):
         f.write('\n'.join(data))
 
 
-def update_latest_fgt(ts, tms_id, fgt):
-    try:
-        ts.update_latest_fgt(id_=tms_id, fgt=fgt)
-    except Exception:
-        try:
-            time.sleep(5)
-            ts.update_latest_fgt(id_=tms_id, fgt=fgt)
-        except Exception:
-            msg = "Updating fgt {} for tms_id {} failed.".format(fgt, tms_id)
-            logger.error(msg)
-            traceback.print_exc()
-            email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-
-
-def push_rainfall_to_db(ts, ts_data, tms_id, fgt):
-    """
-
-    :param ts: timeseries class instance
-    :param ts_data: timeseries
-    :return:
-    """
-
-    try:
-        ts.insert_formatted_data(ts_data, True)  # upsert True
-        update_latest_fgt(ts, tms_id, fgt)
-    except Exception:
-        try:
-            time.sleep(5)
-            ts.insert_formatted_data(ts_data, True)  # upsert True
-            update_latest_fgt(ts, tms_id, fgt)
-        except Exception:
-            msg = "Inserting the timseseries for tms_id {} and fgt {} failed.".format(ts_data[0][0], ts_data[0][2])
-            logger.error(msg)
-            traceback.print_exc()
-            email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-
-
 def create_d03_rfields(d03_rainnc_netcdf_file_path, config_data):
     """
 
