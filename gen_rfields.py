@@ -29,7 +29,7 @@ d01_rfield_home = ''
 
 def usage():
     usageText = """
-    Usage: ./wrf_data_pusher.py -c [config_file_path] -d [wrf_root_directory] -r [gfs_run] -H [gfs_data_hour]
+    Usage: ./gen_rfields.py -c [config_file_path] -d [wrf_root_directory] -r [gfs_run] -H [gfs_data_hour]
     -s [wrf_system] -D [date] 
 
     -h  --help          Show usage
