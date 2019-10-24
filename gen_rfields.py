@@ -20,7 +20,7 @@ KELANI_BASIN_EXTENT = [79.6, 6.6, 81.0, 7.4]
 
 
 email_content = {}
-local_output_root_dir = '/home/uwcc-admin/rfields'
+local_output_root_dir = '/home/uwcc-admin/wrf_rfields'
 bucket_rfield_home = ''
 d03_kelani_basin_rfield_home = ''
 d03_rfield_home = ''
@@ -88,6 +88,14 @@ def datetime_utc_to_lk(timestamp_utc, shift_mins=0):
 def write_to_file(file_name, data):
     with open(file_name, 'w+') as f:
         f.write('\n'.join(data))
+
+
+def makedir_if_not_exist(dir_path):
+    try:
+        os.makedirs(dir_path)
+    except FileExistsError:
+        # directory already exists
+        pass
 
 
 def create_d03_rfields(d03_rainnc_netcdf_file_path, config_data):
@@ -421,11 +429,19 @@ if __name__ == "__main__":
                                            config_data['date'], wrf_system, 'rfield/d01')
 
         bucket_rfield_home = os.path.join(output_dir, 'rfield')
+
+        makedir_if_not_exist(d03_kelani_basin_rfield_home)
+        makedir_if_not_exist(d03_rfield_home)
+        makedir_if_not_exist(d01_rfield_home)
+        makedir_if_not_exist(bucket_rfield_home)
+
         d03_rainnc_netcdf_file = 'd03_RAINNC.nc'
         d03_rainnc_netcdf_file_path = os.path.join(output_dir, d03_rainnc_netcdf_file)
         d01_rainnc_netcdf_file = 'd01_RAINNC.nc'
         d01_rainnc_netcdf_file_path = os.path.join(output_dir, d01_rainnc_netcdf_file)
+
         create_d03_rfields(d03_rainnc_netcdf_file_path, config_data)
+        create_d01_rfields(d01_rainnc_netcdf_file_path, config_data)
 
 
     except Exception as e:
