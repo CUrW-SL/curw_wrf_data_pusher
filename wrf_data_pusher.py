@@ -93,6 +93,10 @@ def update_latest_fgt(ts, tms_id, fgt, wrf_email_content):
         return wrf_email_content
 
 
+# def gen_rfields():
+#     os.system()
+
+
 def push_rainfall_to_db(ts, ts_data, tms_id, fgt, wrf_email_content):
     """
     :param ts: timeseries class instance
@@ -283,7 +287,7 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
 
     rainnc_net_cdf_file_path = os.path.join(output_dir, rainnc_net_cdf_file)
 
-    return read_netcdf_file(pool=pool, rainnc_net_cdf_file_path=rainnc_net_cdf_file_path, tms_meta=tms_meta,
+    wrf_email_content = read_netcdf_file(pool=pool, rainnc_net_cdf_file_path=rainnc_net_cdf_file_path, tms_meta=tms_meta,
                             wrf_email_content=wrf_email_content)
 
 
