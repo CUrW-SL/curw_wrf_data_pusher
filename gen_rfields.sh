@@ -55,7 +55,7 @@ fi
 echo "Running scripts to generate rfields. Logs Available in rfields.log file."
 echo "Params passed:: config_file_path=$config_file_path, wrf_root_directory=$wrf_root_directory, gfs_run=$gfs_run,
 gfs_data_hour=$gfs_data_hour, wrf_system=$wrf_system, date=$date"
-./gen_rfields.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_system -D date >> rfields.log 2>&1
+./gen_rfields.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_system -D $date >> rfields.log 2>&1
 
 # Deactivating virtual environment
 echo "Deactivating virtual environment"

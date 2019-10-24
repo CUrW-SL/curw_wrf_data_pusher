@@ -98,6 +98,10 @@ def makedir_if_not_exist(dir_path):
         pass
 
 
+def remove_all_files(dir):
+    os.system("rm -f {}/*".format(dir))
+
+
 def zip_folder(source, destination):
     os.system("tar -C {} -czf {}.tar.gz {}".format('/'.join(source.split('/')[:-1]), destination, source.split('/')[-1]))
 
@@ -416,29 +420,37 @@ if __name__ == "__main__":
         if is_docker:
             d03_kelani_basin_rfield_home = os.path.join(local_output_root_dir, 'dwrf',  config_data['version'],
                                                         config_data['gfs_run'], config_data['gfs_data_hour'],
-                                                        config_data['date'], wrf_system, 'rfield/d03_kelani_basin')
+                                                        wrf_system, 'rfield/d03_kelani_basin')
             d03_rfield_home = os.path.join(local_output_root_dir, 'dwrf', config_data['version'],
                                                         config_data['gfs_run'], config_data['gfs_data_hour'],
-                                                        config_data['date'], wrf_system, 'rfield/d03')
+                                                        wrf_system, 'rfield/d03')
             d01_rfield_home = os.path.join(local_output_root_dir, 'dwrf', config_data['version'],
                                            config_data['gfs_run'], config_data['gfs_data_hour'],
-                                           config_data['date'], wrf_system, 'rfield/d01')
+                                           wrf_system, 'rfield/d01')
         else:
             d03_kelani_basin_rfield_home = os.path.join(local_output_root_dir, 'wrf', config_data['version'],
                                                         config_data['gfs_run'], config_data['gfs_data_hour'],
-                                                        config_data['date'], wrf_system, 'rfield/d03_kelani_basin')
+                                                        wrf_system, 'rfield/d03_kelani_basin')
             d03_rfield_home = os.path.join(local_output_root_dir, 'wrf', config_data['version'],
                                            config_data['gfs_run'], config_data['gfs_data_hour'],
-                                           config_data['date'], wrf_system, 'rfield/d03')
+                                           wrf_system, 'rfield/d03')
             d01_rfield_home = os.path.join(local_output_root_dir, 'wrf', config_data['version'],
                                            config_data['gfs_run'], config_data['gfs_data_hour'],
-                                           config_data['date'], wrf_system, 'rfield/d01')
+                                           wrf_system, 'rfield/d01')
 
         bucket_rfield_home = os.path.join(output_dir, 'rfield')
 
+        # remove older files
+        remove_all_files(d03_kelani_basin_rfield_home)
+        remove_all_files(d03_rfield_home)
+        remove_all_files(d01_rfield_home)
+
+        # make local rfield directories
         makedir_if_not_exist(d03_kelani_basin_rfield_home)
         makedir_if_not_exist(d03_rfield_home)
         makedir_if_not_exist(d01_rfield_home)
+
+        # make bucket rfield directory
         makedir_if_not_exist(bucket_rfield_home)
 
         d03_rainnc_netcdf_file = 'd03_RAINNC.nc'
