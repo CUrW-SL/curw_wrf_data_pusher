@@ -98,6 +98,10 @@ def makedir_if_not_exist(dir_path):
         pass
 
 
+def zip_folder(source, destination):
+    os.system("tar -C {} -czf {}.tar.gz {}".format('/'.join(source.split('/')[:-1]), destination, source.split('/')[-1]))
+
+
 def create_d03_rfields(d03_rainnc_netcdf_file_path, config_data):
     """
 
@@ -190,6 +194,9 @@ def create_d03_rfields(d03_rainnc_netcdf_file_path, config_data):
                 kelani_basin_df.to_csv(os.path.join(d03_kelani_basin_rfield_home, "{}_{}_{}_{}.txt".format(config_data['model'], config_data['wrf_system'], config_data['version'], timestamp.strftime('%Y-%m-%d_%H-%M'))),
                                        columns=['value'], header=False, index=None)
 
+            zip_folder(d03_kelani_basin_rfield_home, os.path.join(bucket_rfield_home, "kelani_basin"))
+            zip_folder(d03_rfield_home, os.path.join(bucket_rfield_home, 'd03'))
+
             return True
         except Exception as e:
             msg = "netcdf file at {} reading error.".format(d03_rainnc_netcdf_file_path)
@@ -268,8 +275,6 @@ def create_d01_rfields(d01_rainnc_netcdf_file_path, config_data):
 
                 rfield_df = list_of_lists_to_df_first_row_as_columns(rfield).sort_values(['longitude', 'latitude'], ascending=[True, True])
 
-                print(rfield_df)
-
                 if not xy:
                     rfield_df.to_csv(os.path.join(d03_rfield_home, 'xy.csv'), columns=['longitude', 'latitude'], header=False, index=None)
                     xy = True
@@ -277,6 +282,7 @@ def create_d01_rfields(d01_rainnc_netcdf_file_path, config_data):
                 rfield_df.to_csv(os.path.join(d03_rfield_home, "{}_{}_{}_{}.txt".format(config_data['model'], config_data['wrf_system'], config_data['version'], timestamp.strftime('%Y-%m-%d_%H-%M'))),
                                  columns=['value'], header=False, index=None)
 
+            zip_folder(d01_rfield_home, os.path.join(bucket_rfield_home, 'd01'))
             return True
         except Exception as e:
             msg = "netcdf file at {} reading error.".format(d01_rainnc_netcdf_file_path)
