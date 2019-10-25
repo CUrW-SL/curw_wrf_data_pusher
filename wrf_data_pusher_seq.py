@@ -96,6 +96,12 @@ def update_latest_fgt(ts, tms_id, fgt):
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
 
 
+def gen_rfields(config_file_path, wrf_root_directory, gfs_run, gfs_data_hour, wrf_system, date):
+
+    os.system("./gen_rfields.sh {} {} {} {} {} {}".format(config_file_path, wrf_root_directory, gfs_run,
+                                                                  gfs_data_hour, wrf_system, date))
+
+
 def push_rainfall_to_db(ts, ts_data, tms_id, fgt):
     """
 
@@ -138,7 +144,6 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta):
         msg = 'no rainnc netcdf :: {}'.format(rainnc_net_cdf_file_path)
         logger.warning(msg)
         email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-        return False
     else:
 
         try:
@@ -231,17 +236,15 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta):
                         data_list.append([tms_id, t.strftime('%Y-%m-%d %H:%M:00'), fgt, float('%.3f' % diff[i, y, x])])
 
                     push_rainfall_to_db(ts=ts, ts_data=data_list, tms_id=tms_id, fgt=fgt)
-            return True
         except Exception as e:
             msg = "netcdf file at {} reading error.".format(rainnc_net_cdf_file_path)
             logger.error(msg)
             traceback.print_exc()
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            return False
 
 
-def extract_wrf_data(wrf_system, config_data, tms_meta):
-    source_name = "{}_{}".format(config_data['model'], wrf_system)
+def extract_wrf_data(config_data, tms_meta):
+    source_name = "{}_{}".format(config_data['model'], config_data['wrf_system'])
 
     source_id = None
 
@@ -252,7 +255,7 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
             time.sleep(3)
             source_id = get_source_id(pool=pool, model=source_name, version=tms_meta['version'])
         except Exception:
-            msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(wrf_system)
+            msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(config_data['wrf_system'])
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
             return False
@@ -274,13 +277,17 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
     #Buckets/wrf_nfs/wrf/4.0/d1/00/2019-10-04/SE/d03_RAINNC.nc
 
     output_dir = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
-                              config_data['gfs_data_hour'], config_data['date'], wrf_system)
+                              config_data['gfs_data_hour'], config_data['date'], config_data['wrf_system'])
 
     rainnc_net_cdf_file = 'd03_RAINNC.nc'
 
     rainnc_net_cdf_file_path = os.path.join(output_dir, rainnc_net_cdf_file)
 
-    return read_netcdf_file(pool=pool, rainnc_net_cdf_file_path=rainnc_net_cdf_file_path, tms_meta=tms_meta)
+    read_netcdf_file(pool=pool, rainnc_net_cdf_file_path=rainnc_net_cdf_file_path, tms_meta=tms_meta)
+
+    gen_rfields(config_file_path=config_data['config_path'], wrf_root_directory=config_data['wrf_dir'],
+                gfs_run=config_data['gfs_run'], gfs_data_hour=config_data['gfs_data_hour'],
+                wrf_system=config_data['wrf_system'], date=config_data['date'])
 
 
 if __name__ == "__main__":
@@ -428,10 +435,12 @@ if __name__ == "__main__":
             'date': date,
             'wrf_dir': wrf_dir,
             'gfs_run': gfs_run,
-            'gfs_data_hour': gfs_data_hour
+            'gfs_data_hour': gfs_data_hour,
+            'wrf_system': wrf_system,
+            'config_path': config_path
         }
 
-        extract_wrf_data(wrf_system, config_data, tms_meta)
+        extract_wrf_data(config_data, tms_meta)
 
     except Exception as e:
         msg = 'Config data loading error.'
