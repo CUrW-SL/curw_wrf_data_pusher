@@ -258,7 +258,6 @@ def extract_wrf_data(config_data, tms_meta):
             msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(config_data['wrf_system'])
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            return False
 
     if source_id is None:
         try:
@@ -269,7 +268,6 @@ def extract_wrf_data(config_data, tms_meta):
                                                                                           tms_meta['version'])
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            return False
 
     tms_meta['model'] = source_name
     tms_meta['source_id'] = source_id
