@@ -183,31 +183,40 @@ def create_d03_rfields(d03_rainnc_netcdf_file_path, config_data):
                 kelani_basin_df = rfield_df[(rfield_df.longitude >= KB_lon_min) & (rfield_df.longitude <= KB_lon_max) &
                                          (rfield_df.latitude >= KB_lat_min) & (rfield_df.latitude <= KB_lat_max)]
 
-                print(rfield_df)
+                try:
+                    if not xy:
+                        rfield_df.to_csv(os.path.join(d03_rfield_home, 'xy.csv'), columns=['longitude', 'latitude'], header=False, index=None)
 
-                if not xy:
-                    rfield_df.to_csv(os.path.join(d03_rfield_home, 'xy.csv'), columns=['longitude', 'latitude'], header=False, index=None)
+                        kelani_basin_df.to_csv(os.path.join(d03_kelani_basin_rfield_home, 'xy.csv'), columns=['longitude', 'latitude'], header=False, index=None)
 
-                    kelani_basin_df.to_csv(os.path.join(d03_kelani_basin_rfield_home, 'xy.csv'), columns=['longitude', 'latitude'], header=False, index=None)
+                        xy = True
 
-                    xy = True
+                    rfield_df.to_csv(os.path.join(d03_rfield_home, "{}_{}_{}_{}.txt".format(config_data['model'], config_data['wrf_system'], config_data['version'], timestamp.strftime('%Y-%m-%d_%H-%M'))),
+                                     columns=['value'], header=False, index=None)
 
-                rfield_df.to_csv(os.path.join(d03_rfield_home, "{}_{}_{}_{}.txt".format(config_data['model'], config_data['wrf_system'], config_data['version'], timestamp.strftime('%Y-%m-%d_%H-%M'))),
-                                 columns=['value'], header=False, index=None)
+                    kelani_basin_df.to_csv(os.path.join(d03_kelani_basin_rfield_home, "{}_{}_{}_{}.txt".format(config_data['model'], config_data['wrf_system'], config_data['version'], timestamp.strftime('%Y-%m-%d_%H-%M'))),
+                                           columns=['value'], header=False, index=None)
 
-                kelani_basin_df.to_csv(os.path.join(d03_kelani_basin_rfield_home, "{}_{}_{}_{}.txt".format(config_data['model'], config_data['wrf_system'], config_data['version'], timestamp.strftime('%Y-%m-%d_%H-%M'))),
-                                       columns=['value'], header=False, index=None)
+                except Exception as e:
+                    msg = "Rfield generation (local) error {}.".format(d03_rainnc_netcdf_file_path)
+                    logger.error(msg)
+                    traceback.print_exc()
+                    email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
 
-            zip_folder(d03_kelani_basin_rfield_home, os.path.join(bucket_rfield_home, "kelani_basin"))
-            zip_folder(d03_rfield_home, os.path.join(bucket_rfield_home, 'd03'))
+            try:
+                zip_folder(d03_kelani_basin_rfield_home, os.path.join(bucket_rfield_home, "kelani_basin"))
+                zip_folder(d03_rfield_home, os.path.join(bucket_rfield_home, 'd03'))
+            except Exception as e:
+                msg = "Exception occurred while pushing {} rfields to google bucket.".format(d03_rainnc_netcdf_file_path)
+                logger.error(msg)
+                traceback.print_exc()
+                email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
 
-            return True
         except Exception as e:
             msg = "netcdf file at {} reading error.".format(d03_rainnc_netcdf_file_path)
             logger.error(msg)
             traceback.print_exc()
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            return False
 
 
 def create_d01_rfields(d01_rainnc_netcdf_file_path, config_data):
@@ -279,21 +288,32 @@ def create_d01_rfields(d01_rainnc_netcdf_file_path, config_data):
 
                 rfield_df = list_of_lists_to_df_first_row_as_columns(rfield).sort_values(['longitude', 'latitude'], ascending=[True, True])
 
-                if not xy:
-                    rfield_df.to_csv(os.path.join(d03_rfield_home, 'xy.csv'), columns=['longitude', 'latitude'], header=False, index=None)
-                    xy = True
+                try:
+                    if not xy:
+                        rfield_df.to_csv(os.path.join(d03_rfield_home, 'xy.csv'), columns=['longitude', 'latitude'], header=False, index=None)
+                        xy = True
 
-                rfield_df.to_csv(os.path.join(d03_rfield_home, "{}_{}_{}_{}.txt".format(config_data['model'], config_data['wrf_system'], config_data['version'], timestamp.strftime('%Y-%m-%d_%H-%M'))),
-                                 columns=['value'], header=False, index=None)
+                    rfield_df.to_csv(os.path.join(d03_rfield_home, "{}_{}_{}_{}.txt".format(config_data['model'], config_data['wrf_system'], config_data['version'], timestamp.strftime('%Y-%m-%d_%H-%M'))),
+                                     columns=['value'], header=False, index=None)
 
-            zip_folder(d01_rfield_home, os.path.join(bucket_rfield_home, 'd01'))
-            return True
+                except Exception as e:
+                    msg = "Rfield generation (local) error {}.".format(d01_rainnc_netcdf_file_path)
+                    logger.error(msg)
+                    traceback.print_exc()
+                    email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+
+            try:
+                zip_folder(d01_rfield_home, os.path.join(bucket_rfield_home, 'd01'))
+            except Exception as e:
+                msg = "Exception occurred while pushing {} rfields to google bucket.".format(d01_rainnc_netcdf_file_path)
+                logger.error(msg)
+                traceback.print_exc()
+                email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
         except Exception as e:
             msg = "netcdf file at {} reading error.".format(d01_rainnc_netcdf_file_path)
             logger.error(msg)
             traceback.print_exc()
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            return False
 
 
 if __name__ == "__main__":
@@ -461,13 +481,11 @@ if __name__ == "__main__":
         create_d03_rfields(d03_rainnc_netcdf_file_path, config_data)
         create_d01_rfields(d01_rainnc_netcdf_file_path, config_data)
 
-
     except Exception as e:
-        msg = 'Multiprocessing error.'
+        msg = 'Config data loading error.'
         logger.error(msg)
         email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
         traceback.print_exc()
     finally:
-        logger.info("Process finished.")
-        logger.info("Email Content {}".format(json.dumps(email_content)))
+        logger.info("Rfield Generation Process :: Email Content {}".format(json.dumps(email_content)))
 
