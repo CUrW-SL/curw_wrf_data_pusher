@@ -93,8 +93,10 @@ def update_latest_fgt(ts, tms_id, fgt, wrf_email_content):
         return wrf_email_content
 
 
-# def gen_rfields():
-#     os.system()
+def gen_rfields(config_file_path, wrf_root_directory, gfs_run, gfs_data_hour, wrf_system, date):
+
+    os.system("./gen_rfields.sh {} {} {} {} {} {}".format(config_file_path, wrf_root_directory, gfs_run,
+                                                                  gfs_data_hour, wrf_system, date))
 
 
 def push_rainfall_to_db(ts, ts_data, tms_id, fgt, wrf_email_content):
