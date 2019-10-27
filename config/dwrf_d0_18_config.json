@@ -1,0 +1,16 @@
+{
+  "wrf_dir": "/mnt/disks/wrf_nfs/dwrf",
+  "gfs_run": "d0",
+  "gfs_data_hour": "18",
+  "version": "4.0",
+
+  "model": "WRF",
+  "wrf_systems": "E",
+
+  "sim_tag": "dwrf_gfs_d0_18",
+
+  "unit": "mm",
+  "unit_type": "Accumulative",
+
+  "variable": "Precipitation"
+}
