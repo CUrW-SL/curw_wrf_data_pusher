@@ -447,6 +447,5 @@ if __name__ == "__main__":
         traceback.print_exc()
     finally:
         destroy_Pool(pool)
-        logger.info("Process finished.")
-        logger.info("Email Content {}".format(json.dumps(email_content)))
+        logger.info("Sequential WRF data extraction Process ::: Email Content {}".format(json.dumps(email_content)))
 

@@ -36,10 +36,10 @@ email_content = {}
 
 def usage():
     usageText = """
-    Usage: python wrf_data_pusher.py -c "wrf_d1_18_config" -d "2019-10-19"
+    Usage: python wrf_data_pusher.py -c "config/wrf_d0_00_config.json" -d "2019-10-19"
 
     -h  --help          Show usage
-    -c  --config        Config file name 
+    -c  --config        Config file path  
     -d  --date          Run date (date of the netcdf file containing folder)
     """
     print(usageText)
@@ -77,6 +77,12 @@ def datetime_utc_to_lk(timestamp_utc, shift_mins=0):
     return timestamp_utc + timedelta(hours=5, minutes=30 + shift_mins)
 
 
+def gen_rfields(config_file_path, wrf_root_directory, gfs_run, gfs_data_hour, wrf_system, date):
+
+    os.system("./gen_rfields.sh {} {} {} {} {} {}".format(config_file_path, wrf_root_directory, gfs_run,
+                                                                  gfs_data_hour, wrf_system, date))
+
+
 def update_latest_fgt(ts, tms_id, fgt, wrf_email_content):
     try:
         ts.update_latest_fgt(id_=tms_id, fgt=fgt)
@@ -91,12 +97,6 @@ def update_latest_fgt(ts, tms_id, fgt, wrf_email_content):
             wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
     finally:
         return wrf_email_content
-
-
-def gen_rfields(config_file_path, wrf_root_directory, gfs_run, gfs_data_hour, wrf_system, date):
-
-    os.system("./gen_rfields.sh {} {} {} {} {} {}".format(config_file_path, wrf_root_directory, gfs_run,
-                                                                  gfs_data_hour, wrf_system, date))
 
 
 def push_rainfall_to_db(ts, ts_data, tms_id, fgt, wrf_email_content):
@@ -292,6 +292,12 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
     wrf_email_content = read_netcdf_file(pool=pool, rainnc_net_cdf_file_path=rainnc_net_cdf_file_path, tms_meta=tms_meta,
                             wrf_email_content=wrf_email_content)
 
+    gen_rfields(config_file_path=config_data['config_path'], wrf_root_directory=config_data['wrf_dir'],
+                gfs_run=config_data['gfs_run'], gfs_data_hour=config_data['gfs_data_hour'],
+                wrf_system=wrf_system, date=config_data['date'])
+
+    return wrf_email_content
+
 
 if __name__ == "__main__":
 
@@ -333,7 +339,7 @@ if __name__ == "__main__":
     """
     try:
 
-        config_name = None
+        config_path = None
         date = None
 
         try:
@@ -347,7 +353,7 @@ if __name__ == "__main__":
                 usage()
                 sys.exit()
             elif opt in ("-c", "--config"):
-                config_name = arg.strip()
+                config_path = arg.strip()
             elif opt in ("-d", "--date"):
                 date = arg.strip()
 
@@ -357,13 +363,13 @@ if __name__ == "__main__":
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
             sys.exit(1)
 
-        if config_name is None:
+        if config_path is None:
             msg = "Config file name is not specified."
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
             sys.exit(1)
 
-        config = json.loads(open('{}.json'.format(config_name)).read())
+        config = json.loads(open(config_path).read())
 
         # source details
         wrf_dir = read_attribute_from_config_file('wrf_dir', config)
@@ -414,7 +420,8 @@ if __name__ == "__main__":
             'date': date,
             'wrf_dir': wrf_dir,
             'gfs_run': gfs_run,
-            'gfs_data_hour': gfs_data_hour
+            'gfs_data_hour': gfs_data_hour,
+            'config_path': config_path
         }
 
         mp_pool = mp.Pool(mp.cpu_count())
