@@ -1,3 +1,7 @@
+###################
+# WRF EXTRACTIONS #
+###################
+
 # push wrf-4.0 yesterday 18 hrs run data to new curw_fcst db at 02:30 everyday
 00 21 * * * /home/uwcc-admin/curw_wrf_data_pusher/wrf_runner_d0_18.sh >> /home/uwcc-admin/curw_wrf_data_pusher/wrf_data_pusher_d0_18.log
 
