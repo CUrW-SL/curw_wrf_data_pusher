@@ -284,9 +284,10 @@ def extract_wrf_data(config_data, tms_meta):
 
     read_netcdf_file(pool=pool, rainnc_net_cdf_file_path=rainnc_net_cdf_file_path, tms_meta=tms_meta)
 
-    gen_rfields(config_file_path=config_data['config_path'], wrf_root_directory=config_data['wrf_dir'],
-                gfs_run=config_data['gfs_run'], gfs_data_hour=config_data['gfs_data_hour'],
-                wrf_system=config_data['wrf_system'], date=config_data['date'])
+    if not bool(email_content):
+        gen_rfields(config_file_path=config_data['config_path'], wrf_root_directory=config_data['wrf_dir'],
+                    gfs_run=config_data['gfs_run'], gfs_data_hour=config_data['gfs_data_hour'],
+                    wrf_system=config_data['wrf_system'], date=config_data['date'])
 
 
 if __name__ == "__main__":
