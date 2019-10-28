@@ -37,8 +37,8 @@ then
     pip install git+https://github.com/shadhini/curw_db_adapter.git
 fi
 
-config_file_path=$1
-date=$2
+date=$1
+config_file_path="config/wrf_d0_18_config.json"
 
 if [ -n $date ]
 then
