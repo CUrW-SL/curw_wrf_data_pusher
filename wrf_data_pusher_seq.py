@@ -275,7 +275,8 @@ def extract_wrf_data(config_data, tms_meta):
     #Buckets/wrf_nfs/wrf/4.0/d1/00/2019-10-04/SE/d03_RAINNC.nc
 
     output_dir = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
-                              config_data['gfs_data_hour'], config_data['date'], config_data['wrf_system'])
+                              config_data['gfs_data_hour'], config_data['date'], 'output',
+                              config_data['wrf_type'], config_data['wrf_system'])
 
     rainnc_net_cdf_file = 'd03_RAINNC.nc'
 

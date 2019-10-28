@@ -283,7 +283,8 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
     #Buckets/wrf_nfs/wrf  /4.0/d1/00/2019-10-04/SE/d03_RAINNC.nc
 
     output_dir = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
-                              config_data['gfs_data_hour'], config_data['date'], wrf_system)
+                              config_data['gfs_data_hour'], config_data['date'], 'output',
+                              config_data['wrf_type'], wrf_system)
 
     rainnc_net_cdf_file = 'd03_RAINNC.nc'
 
@@ -380,6 +381,7 @@ if __name__ == "__main__":
         gfs_data_hour = read_attribute_from_config_file('gfs_data_hour', config)
         wrf_systems = read_attribute_from_config_file('wrf_systems', config)
         wrf_systems_list = wrf_systems.split(',')
+        wrf_type = read_attribute_from_config_file('wrf_type', config)
 
         # sim_tag
         sim_tag = read_attribute_from_config_file('sim_tag', config)
@@ -422,7 +424,8 @@ if __name__ == "__main__":
             'wrf_dir': wrf_dir,
             'gfs_run': gfs_run,
             'gfs_data_hour': gfs_data_hour,
-            'config_path': config_path
+            'config_path': config_path,
+            'wrf_type': wrf_type
         }
 
         mp_pool = mp.Pool(mp.cpu_count())
