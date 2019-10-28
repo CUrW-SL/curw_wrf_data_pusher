@@ -36,11 +36,11 @@ email_content = {}
 
 def usage():
     usageText = """
-    Usage: python wrf_data_pusher.py -c "config/wrf_d0_00_config.json" -d "2019-10-19"
+    Usage: python ./wrf_data_pusher.py -c "config/wrf_d0_00_config.json" -D "2019-10-19"
 
     -h  --help          Show usage
     -c  --config        Config file path  
-    -d  --date          Run date (date of the netcdf file containing folder)
+    -D  --date          Run date (date of the netcdf file containing folder)
     """
     print(usageText)
 
@@ -345,7 +345,7 @@ if __name__ == "__main__":
         date = None
 
         try:
-            opts, args = getopt.getopt(sys.argv[1:], "h:c:d:",
+            opts, args = getopt.getopt(sys.argv[1:], "h:c:D:",
                                        ["help", "config=", "date="])
         except getopt.GetoptError:
             usage()
@@ -356,7 +356,7 @@ if __name__ == "__main__":
                 sys.exit()
             elif opt in ("-c", "--config"):
                 config_path = arg.strip()
-            elif opt in ("-d", "--date"):
+            elif opt in ("-D", "--date"):
                 date = arg.strip()
 
         if date is None:
@@ -446,7 +446,7 @@ if __name__ == "__main__":
         mp_pool.close()
         destroy_Pool(pool)
         logger.info("Process finished.")
-        logger.info("Email Content {}".format(json.dumps(email_content)))
+        logger.info("Parallel wrf data extraction process :: Email Content {}".format(json.dumps(email_content)))
         logger.info("############ wrf extraction results ########## ")
         for i in range(len(wrf_results)):
             logger.info(wrf_results[i])
