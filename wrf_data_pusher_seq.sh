@@ -20,7 +20,7 @@ echo "Activating venv python3 virtual environment."
 source venv/bin/activate
 
 # Install dependencies using pip.
-if [ ! -f "wrf_data_pusher_seq.log" ]
+if [ ! -f "db.log" ]
 then
     echo "Installing numpy"
     pip install numpy
