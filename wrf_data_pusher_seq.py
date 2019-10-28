@@ -321,6 +321,7 @@ if __name__ == "__main__":
                     'unit_type'     : unit_type
                     }
     """
+    pool = None
     try:
 
         config_path = None
@@ -449,7 +450,8 @@ if __name__ == "__main__":
         email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
         traceback.print_exc()
     finally:
-        destroy_Pool(pool)
+        if pool is not None:
+            destroy_Pool(pool)
         print("{} Sequential WRF data extraction Process ::: \n Email Content {} ::: \n Config details"
               .format(datetime.now(), json.dumps(email_content), json.dumps(config_data)))
 
