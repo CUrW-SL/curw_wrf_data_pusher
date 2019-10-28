@@ -305,6 +305,7 @@ if __name__ == "__main__":
     Config.json 
     {
       "wrf_dir": "/wrf_nfs/wrf",
+      "wrf_type": "wrf",
       "gfs_run": "d0",
       "gfs_data_hour": "18",
       "version": "4.0",

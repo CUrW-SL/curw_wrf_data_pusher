@@ -1,5 +1,6 @@
 {
   "wrf_dir": "/mnt/disks/wrf_nfs/dwrf",
+  "wrf_type": "dwrf",
   "gfs_run": "d0",
   "gfs_data_hour": "18",
   "version": "4.0",
