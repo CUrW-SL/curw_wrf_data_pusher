@@ -441,7 +441,8 @@ if __name__ == "__main__":
         }
 
         output_dir = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
-                                  config_data['gfs_data_hour'], config_data['date'], config_data['wrf_system'])
+                                  config_data['gfs_data_hour'], config_data['date'], 'output',
+                                  config_data['wrf_type'], config_data['wrf_system'])
 
         local_rfield_home = os.path.join(local_output_root_dir, config_data['version'], config_data['gfs_run'],
                                          config_data['gfs_data_hour'], 'rfields', config_data['wrf_type'])
