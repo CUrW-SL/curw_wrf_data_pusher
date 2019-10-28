@@ -340,6 +340,11 @@ if __name__ == "__main__":
                     'unit_type'     : unit_type
                     }
     """
+    mp_pool = None
+    pool = None
+    config_data = {}
+    wrf_results =None
+
     try:
 
         config_path = None
@@ -444,11 +449,15 @@ if __name__ == "__main__":
         email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
         traceback.print_exc()
     finally:
-        mp_pool.close()
-        destroy_Pool(pool)
+        if mp_pool is not None:
+            mp_pool.close()
+        if pool is not None:
+            destroy_Pool(pool)
         logger.info("Process finished.")
-        logger.info("Parallel wrf data extraction process :: Email Content {}".format(json.dumps(email_content)))
-        logger.info("############ wrf extraction results ########## ")
-        for i in range(len(wrf_results)):
-            logger.info(wrf_results[i])
+        print("{} ::: Parallel wrf data extraction process \n::: Email Content {} \n::: Config Data {}"
+              .format(datetime.now(), json.dumps(email_content), json.dumps(config_data)))
+        print("::: wrf extraction results :::")
+        if wrf_results is not None:
+            for i in range(len(wrf_results)):
+                print(json.dumps(wrf_results[i]))
 

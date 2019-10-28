@@ -454,6 +454,6 @@ if __name__ == "__main__":
     finally:
         if pool is not None:
             destroy_Pool(pool)
-        print("{} Sequential WRF data extraction Process ::: \n Email Content {} ::: \n Config details"
+        print("{} ::: Sequential WRF data extraction Process  \n:::Email Content {}  \n::: Config details"
               .format(datetime.now(), json.dumps(email_content), json.dumps(config_data)))
 

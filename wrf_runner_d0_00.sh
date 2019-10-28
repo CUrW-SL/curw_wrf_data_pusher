@@ -20,7 +20,7 @@ echo "Activating venv python3 virtual environment."
 source venv/bin/activate
 
 # Install dependencies using pip.
-if [ ! -f "wrf_data_pusher.log" ]
+if [ ! -f "db.log" ]
 then
     echo "Installing numpy"
     pip install numpy
@@ -48,7 +48,7 @@ fi
 ## Push WRF data into the database
 echo "Running scripts to extract wrf data parallely. Logs Available in wrf_data_pusher.log file."
 echo "Params passed :: config_file_path=$config_file_path, date=$date"
-./wrf_data_pusher.py -c $config_file_path -D $date >> wrf_data_pusher.log 2>&1
+./wrf_data_pusher.py -c $config_file_path -D $date >> wrf_data_pusher_d0_00.log 2>&1
 
 
 # Deactivating virtual environment
