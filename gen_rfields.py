@@ -358,6 +358,8 @@ if __name__ == "__main__":
                     'unit_type'     : unit_type
                     }
     """
+    config_data = {}
+
     try:
 
         config_path = None
@@ -487,5 +489,6 @@ if __name__ == "__main__":
         email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
         traceback.print_exc()
     finally:
-        logger.info("Rfield Generation Process :: Email Content {}".format(json.dumps(email_content)))
+        print("{} ::: Rfield Generation Process \n::: Email Content {} \n::: Config Data {}"
+                    .format(datetime.now(), json.dumps(email_content), json.dumps(config_data)))
 
