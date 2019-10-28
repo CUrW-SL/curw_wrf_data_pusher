@@ -20,11 +20,15 @@ KELANI_BASIN_EXTENT = [79.6, 6.6, 81.0, 7.4]
 
 
 email_content = {}
+
 local_output_root_dir = '/home/uwcc-admin/wrf_rfields'
-bucket_rfield_home = ''
 d03_kelani_basin_rfield_home = ''
 d03_rfield_home = ''
 d01_rfield_home = ''
+
+d03_kelani_basin_bucket_rfield_home = ''
+d03_bucket_rfield_home = ''
+d01_bucket_rfield_home = ''
 
 
 def usage():
@@ -204,8 +208,8 @@ def create_d03_rfields(d03_rainnc_netcdf_file_path, config_data):
                     email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
 
             try:
-                zip_folder(d03_kelani_basin_rfield_home, os.path.join(bucket_rfield_home, "kelani_basin"))
-                zip_folder(d03_rfield_home, os.path.join(bucket_rfield_home, 'd03'))
+                zip_folder(d03_kelani_basin_rfield_home, os.path.join(d03_kelani_basin_bucket_rfield_home, config_data['wrf_system']))
+                zip_folder(d03_rfield_home, os.path.join(d03_bucket_rfield_home, config_data['wrf_system']))
             except Exception as e:
                 msg = "Exception occurred while pushing {} rfields to google bucket.".format(d03_rainnc_netcdf_file_path)
                 logger.error(msg)
@@ -256,6 +260,8 @@ def create_d01_rfields(d01_rainnc_netcdf_file_path, config_data):
             lon_max = lons[-1].item()
             lat_max = lats[-1].item()
 
+            # print("lon_min: ", '%.6f' % lon_min, "lat_min: ", '%.6f' % lat_min, "lon_max: ", '%.6f' % lon_max, "lat_max: ", '%.6f' % lat_max)
+
             lat_inds = np.where((lats >= lat_min) & (lats <= lat_max))
             lon_inds = np.where((lons >= lon_min) & (lons <= lon_max))
 
@@ -290,10 +296,10 @@ def create_d01_rfields(d01_rainnc_netcdf_file_path, config_data):
 
                 try:
                     if not xy:
-                        rfield_df.to_csv(os.path.join(d03_rfield_home, 'xy.csv'), columns=['longitude', 'latitude'], header=False, index=None)
+                        rfield_df.to_csv(os.path.join(d01_rfield_home, 'xy.csv'), columns=['longitude', 'latitude'], header=False, index=None)
                         xy = True
 
-                    rfield_df.to_csv(os.path.join(d03_rfield_home, "{}_{}_{}_{}.txt".format(config_data['model'], config_data['wrf_system'], config_data['version'], timestamp.strftime('%Y-%m-%d_%H-%M'))),
+                    rfield_df.to_csv(os.path.join(d01_rfield_home, "{}_{}_{}_{}.txt".format(config_data['model'], config_data['wrf_system'], config_data['version'], timestamp.strftime('%Y-%m-%d_%H-%M'))),
                                      columns=['value'], header=False, index=None)
 
                 except Exception as e:
@@ -303,7 +309,7 @@ def create_d01_rfields(d01_rainnc_netcdf_file_path, config_data):
                     email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
 
             try:
-                zip_folder(d01_rfield_home, os.path.join(bucket_rfield_home, 'd01'))
+                zip_folder(d01_rfield_home, os.path.join(d01_bucket_rfield_home, config_data['wrf_system']))
             except Exception as e:
                 msg = "Exception occurred while pushing {} rfields to google bucket.".format(d01_rainnc_netcdf_file_path)
                 logger.error(msg)
@@ -322,7 +328,7 @@ if __name__ == "__main__":
     #             'version': "4.0",
     #             'wrf_system': "A"
     #         }
-    # create_d03_rfields("/home/shadhini/dev/repos/curw-sl/curw_wrf_data_pusher/wrf_4.0_18_A_2019-10-15_d03_RAINNC.nc", config_data)
+    # create_d01_rfields("/home/shadhini/dev/repos/curw-sl/curw_wrf_data_pusher/to_be_deprecated/wrf_4.0_18_A_2019-10-15_d01_RAINNC.nc", config_data)
 
     """
     Config.json
@@ -416,7 +422,7 @@ if __name__ == "__main__":
             sys.exit(1)
         model = read_attribute_from_config_file('model', config)
         version = read_attribute_from_config_file('version', config)
-        is_docker = read_attribute_from_config_file('is_docker', config)
+        wrf_type = read_attribute_from_config_file('wrf_type', config)
 
         if date is None:
             msg = "Run date is not specified."
@@ -437,28 +443,19 @@ if __name__ == "__main__":
         output_dir = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
                                   config_data['gfs_data_hour'], config_data['date'], wrf_system)
 
-        if is_docker:
-            d03_kelani_basin_rfield_home = os.path.join(local_output_root_dir, 'dwrf',  config_data['version'],
-                                                        config_data['gfs_run'], config_data['gfs_data_hour'],
-                                                        wrf_system, 'rfield/d03_kelani_basin')
-            d03_rfield_home = os.path.join(local_output_root_dir, 'dwrf', config_data['version'],
-                                                        config_data['gfs_run'], config_data['gfs_data_hour'],
-                                                        wrf_system, 'rfield/d03')
-            d01_rfield_home = os.path.join(local_output_root_dir, 'dwrf', config_data['version'],
-                                           config_data['gfs_run'], config_data['gfs_data_hour'],
-                                           wrf_system, 'rfield/d01')
-        else:
-            d03_kelani_basin_rfield_home = os.path.join(local_output_root_dir, 'wrf', config_data['version'],
-                                                        config_data['gfs_run'], config_data['gfs_data_hour'],
-                                                        wrf_system, 'rfield/d03_kelani_basin')
-            d03_rfield_home = os.path.join(local_output_root_dir, 'wrf', config_data['version'],
-                                           config_data['gfs_run'], config_data['gfs_data_hour'],
-                                           wrf_system, 'rfield/d03')
-            d01_rfield_home = os.path.join(local_output_root_dir, 'wrf', config_data['version'],
-                                           config_data['gfs_run'], config_data['gfs_data_hour'],
-                                           wrf_system, 'rfield/d01')
+        local_rfield_home = os.path.join(local_output_root_dir, config_data['version'], config_data['gfs_run'],
+                                         config_data['gfs_data_hour'], 'rfields', wrf_type)
 
-        bucket_rfield_home = os.path.join(output_dir, 'rfield')
+        d03_kelani_basin_rfield_home = os.path.join(local_rfield_home, 'd03_kelani_basin', wrf_system)
+        d03_rfield_home = os.path.join(local_rfield_home, 'd03', wrf_system)
+        d01_rfield_home = os.path.join(local_rfield_home, 'd01', wrf_system)
+
+        bucket_rfield_home = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
+                                  config_data['gfs_data_hour'], config_data['date'], 'rfields', wrf_type)
+
+        d03_kelani_basin_bucket_rfield_home = os.path.join(bucket_rfield_home, 'd03_kelani_basin')
+        d03_bucket_rfield_home = os.path.join(bucket_rfield_home, 'd03')
+        d01_bucket_rfield_home = os.path.join(bucket_rfield_home, 'd01')
 
         # remove older files
         remove_all_files(d03_kelani_basin_rfield_home)
@@ -470,8 +467,10 @@ if __name__ == "__main__":
         makedir_if_not_exist(d03_rfield_home)
         makedir_if_not_exist(d01_rfield_home)
 
-        # make bucket rfield directory
-        makedir_if_not_exist(bucket_rfield_home)
+        # make bucket rfield directories
+        makedir_if_not_exist(d03_kelani_basin_bucket_rfield_home)
+        makedir_if_not_exist(d03_bucket_rfield_home)
+        makedir_if_not_exist(d01_bucket_rfield_home)
 
         d03_rainnc_netcdf_file = 'd03_RAINNC.nc'
         d03_rainnc_netcdf_file_path = os.path.join(output_dir, d03_rainnc_netcdf_file)

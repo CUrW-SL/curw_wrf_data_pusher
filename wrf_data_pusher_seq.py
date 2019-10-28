@@ -294,17 +294,16 @@ if __name__ == "__main__":
     Config.json 
     {
       "version": "4.0",
+      "is_docker": false, #this is only used for deciding local rfield generation directory
     
       "model": "WRF",
-        
-      "sim_tag": "gfs_d0_18",
     
       "unit": "mm",
       "unit_type": "Accumulative",
     
       "variable": "Precipitation"
-
     }
+
 
     /wrf_nfs/wrf/4.0/d0/18/A/2019-07-30/d03_RAINNC.nc
 
