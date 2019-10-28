@@ -294,7 +294,7 @@ if __name__ == "__main__":
     Config.json 
     {
       "version": "4.0",
-      "is_docker": false, #this is only used for deciding local rfield generation directory
+      "wrf_type": "dwrf",
     
       "model": "WRF",
     
@@ -303,6 +303,7 @@ if __name__ == "__main__":
     
       "variable": "Precipitation"
     }
+
 
 
     /wrf_nfs/wrf/4.0/d0/18/A/2019-07-30/d03_RAINNC.nc
@@ -381,12 +382,12 @@ if __name__ == "__main__":
             sys.exit(1)
         model = read_attribute_from_config_file('model', config)
         version = read_attribute_from_config_file('version', config)
-        is_docker = read_attribute_from_config_file('is_docker', config)
+        wrf_type = read_attribute_from_config_file('wrf_type', config)
 
         # sim_tag
         sim_tag_prefix = ''
-        if is_docker:
-            sim_tag_prefix = 'dwrf_'
+        if wrf_type != 'wrf':
+            sim_tag_prefix = wrf_type + "_"
         sim_tag = sim_tag_prefix + 'gfs_{}_{}'.format(gfs_run, gfs_data_hour)
 
         # unit details
@@ -434,7 +435,8 @@ if __name__ == "__main__":
             'gfs_run': gfs_run,
             'gfs_data_hour': gfs_data_hour,
             'wrf_system': wrf_system,
-            'config_path': config_path
+            'config_path': config_path,
+            'wrf_type': wrf_type
         }
 
         extract_wrf_data(config_data, tms_meta)

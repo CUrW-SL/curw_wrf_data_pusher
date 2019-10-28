@@ -334,17 +334,16 @@ if __name__ == "__main__":
     Config.json
     {
       "version": "4.0",
-
+      "wrf_type": "dwrf",
+    
       "model": "WRF",
-
-      "sim_tag": "gfs_d0_18",
-
+    
       "unit": "mm",
       "unit_type": "Accumulative",
-
+    
       "variable": "Precipitation"
-
     }
+
 
     /wrf_nfs/wrf/4.0/d0/18/A/2019-07-30/d03_RAINNC.nc
 
@@ -437,21 +436,22 @@ if __name__ == "__main__":
             'wrf_dir': wrf_dir,
             'gfs_run': gfs_run,
             'gfs_data_hour': gfs_data_hour,
-            'wrf_system': wrf_system
+            'wrf_system': wrf_system,
+            'wrf_type': wrf_type
         }
 
         output_dir = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
-                                  config_data['gfs_data_hour'], config_data['date'], wrf_system)
+                                  config_data['gfs_data_hour'], config_data['date'], config_data['wrf_system'])
 
         local_rfield_home = os.path.join(local_output_root_dir, config_data['version'], config_data['gfs_run'],
-                                         config_data['gfs_data_hour'], 'rfields', wrf_type)
+                                         config_data['gfs_data_hour'], 'rfields', config_data['wrf_type'])
 
-        d03_kelani_basin_rfield_home = os.path.join(local_rfield_home, 'd03_kelani_basin', wrf_system)
-        d03_rfield_home = os.path.join(local_rfield_home, 'd03', wrf_system)
-        d01_rfield_home = os.path.join(local_rfield_home, 'd01', wrf_system)
+        d03_kelani_basin_rfield_home = os.path.join(local_rfield_home, 'd03_kelani_basin', config_data['wrf_system'])
+        d03_rfield_home = os.path.join(local_rfield_home, 'd03', config_data['wrf_system'])
+        d01_rfield_home = os.path.join(local_rfield_home, 'd01', config_data['wrf_system'])
 
         bucket_rfield_home = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
-                                  config_data['gfs_data_hour'], config_data['date'], 'rfields', wrf_type)
+                                  config_data['gfs_data_hour'], config_data['date'], 'rfields', config_data['wrf_type'])
 
         d03_kelani_basin_bucket_rfield_home = os.path.join(bucket_rfield_home, 'd03_kelani_basin')
         d03_bucket_rfield_home = os.path.join(bucket_rfield_home, 'd03')
