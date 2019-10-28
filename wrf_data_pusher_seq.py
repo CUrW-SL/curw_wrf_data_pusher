@@ -322,6 +322,8 @@ if __name__ == "__main__":
                     }
     """
     pool = None
+    config_data = {}
+
     try:
 
         config_path = None
