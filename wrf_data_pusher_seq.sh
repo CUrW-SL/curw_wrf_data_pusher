@@ -53,7 +53,7 @@ fi
 
 ## Push WRFv4 data into the database
 echo "Running scripts to extract wrf data sequentially. Logs Available in wrf_data_pusher_seq.log file."
-echo "Params passed:: config_file_path=$config_file_path, wrf_root_directory=$wrf_root_directory, gfs_run=$gfs_run,
+echo "Params passed :: config_file_path=$config_file_path, wrf_root_directory=$wrf_root_directory, gfs_run=$gfs_run,
 gfs_data_hour=$gfs_data_hour, wrf_system=$wrf_system, date=$date"
 ./wrf_data_pusher_seq.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_system -D $date >> wrf_data_pusher_seq.log 2>&1
 

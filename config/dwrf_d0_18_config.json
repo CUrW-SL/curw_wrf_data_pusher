@@ -1,5 +1,5 @@
 {
-  "wrf_dir": "/mnt/disks/wrf_nfs/dwrf",
+  "wrf_dir": "/mnt/disks/wrf_nfs/wrf",
   "wrf_type": "dwrf",
   "gfs_run": "d0",
   "gfs_data_hour": "18",
