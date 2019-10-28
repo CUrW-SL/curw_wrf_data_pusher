@@ -44,12 +44,12 @@ date=$2
 
 if [ -n $date ]
 then
-  echo "Date is not specified."
+  date=$(date -u -d '+5 hour +30 min' '+%F')
 fi
 
-### Push WRF data into the database
-#echo "Running scripts to extract wrf data parallely. Logs Available in wrf_data_pusher.log file."
-#echo "Params passed :: config_file_path=$config_file_path, date=$date"
+## Push WRF data into the database
+echo "Running scripts to extract wrf data parallely. Logs Available in wrf_data_pusher.log file."
+echo "Params passed :: config_file_path=$config_file_path, date=$date"
 #./wrf_data_pusher.py -c $config_file_path -D $date >> wrf_data_pusher.log 2>&1
 #
 #
