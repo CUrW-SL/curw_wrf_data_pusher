@@ -36,11 +36,11 @@ email_content = {}
 
 def usage():
     usageText = """
-    Usage: python ./wrf_data_pusher.py -c "config/wrf_d0_00_config.json" -D "2019-10-19"
+    Usage: python ./wrf_data_pusher.py -c [config file path] -D [run date]
 
     -h  --help          Show usage
-    -c  --config        Config file path  
-    -D  --date          Run date (date of the netcdf file containing folder)
+    -c  --config        Config file path  e.g. "config/wrf_d0_00_config.json"
+    -D  --date          Run date (date of the netcdf file containing folder). e.g. "2019-10-19"
     """
     print(usageText)
 
