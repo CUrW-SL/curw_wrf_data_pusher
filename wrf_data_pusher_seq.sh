@@ -44,11 +44,6 @@ gfs_data_hour=$4
 wrf_system=$5
 date=$6
 
-if [ -n $date ]
-then
-  echo "Date is not specified."
-fi
-
 ## Push WRFv4 data into the database
 echo "Running scripts to extract wrf data sequentially. Logs Available in wrf_data_pusher_seq.log file."
 echo "Params passed :: config_file_path=$config_file_path, wrf_root_directory=$wrf_root_directory, gfs_run=$gfs_run,

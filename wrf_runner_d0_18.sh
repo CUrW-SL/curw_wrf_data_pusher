@@ -40,7 +40,7 @@ fi
 date=$1
 config_file_path="config/wrf_d0_18_config.json"
 
-if [ -n $date ]
+if [ -z $date ]
 then
   date=$(date -u -d '+5 hour +30 min' '+%F')
 fi
