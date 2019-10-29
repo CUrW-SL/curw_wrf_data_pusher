@@ -224,8 +224,12 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta):
                         try:
                             ts.insert_run(run_meta)
                         except Exception:
-                            logger.error("Exception occurred while inserting run entry {}".format(run_meta))
-                            traceback.print_exc()
+                            time.sleep(5)
+                            try:
+                                ts.insert_run(run_meta)
+                            except Exception:
+                                logger.error("Exception occurred while inserting run entry {}".format(run_meta))
+                                traceback.print_exc()
 
                     data_list = []
                     # generate timeseries for each station
