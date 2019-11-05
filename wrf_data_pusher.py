@@ -83,6 +83,12 @@ def gen_rfields(config_file_path, wrf_root_directory, gfs_run, gfs_data_hour, wr
                                                                   gfs_data_hour, wrf_system, date))
 
 
+def gen_hybrid_rfields(config_file_path, wrf_root_directory, gfs_run, gfs_data_hour, wrf_systems, date):
+
+    os.system("./gen_active_stations_rfields.sh {} {} {} {} {} {}".
+              format(config_file_path, wrf_root_directory, gfs_run, gfs_data_hour, wrf_systems, date))
+
+
 def update_latest_fgt(ts, tms_id, fgt, wrf_email_content):
     try:
         ts.update_latest_fgt(id_=tms_id, fgt=fgt)
@@ -446,6 +452,10 @@ if __name__ == "__main__":
         wrf_results = mp_pool.starmap(extract_wrf_data,
                                       [(wrf_system, config_data, tms_meta) for wrf_system in
                                        wrf_systems_list])
+
+        gen_hybrid_rfields(config_file_path=config_data['config_path'], wrf_root_directory=config_data['wrf_dir'],
+                           gfs_run=config_data['gfs_run'], gfs_data_hour=config_data['gfs_data_hour'],
+                           wrf_systems=wrf_systems, date=config_data['date'])
 
     except Exception as e:
         msg = 'Multiprocessing error.'
