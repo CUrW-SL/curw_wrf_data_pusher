@@ -204,7 +204,6 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
             outer_df_initialized = True
         else:
             dataframe = dataframe.append(df)
-            print(dataframe)
 
     dataframe.sort_index(inplace=True)
 
