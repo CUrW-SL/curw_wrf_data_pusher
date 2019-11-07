@@ -145,65 +145,73 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
     dataframe = pd.DataFrame()
     outer_df_initialized = False
 
-    for obs_id in obs_to_d03_dict.keys():
-        print('obs id, ', obs_id)
+    try:
 
-        d03_station_id = obs_to_d03_dict.get(obs_id)
-        latitude = active_obs_stations.get(obs_id)[2]
-        longitude = active_obs_stations.get(obs_id)[3]
-        hash_id = active_obs_stations.get(obs_id)[0]
+        for obs_id in obs_to_d03_dict.keys():
+            print('obs id, ', obs_id)
 
-        df = pd.DataFrame()
-        df_initialized = False
+            d03_station_id = obs_to_d03_dict.get(obs_id)
+            if d03_station_id is not None:
+                latitude = active_obs_stations.get(obs_id)[2]
+                longitude = active_obs_stations.get(obs_id)[3]
+                hash_id = active_obs_stations.get(obs_id)[0]
 
-        for wrf_system in config_data['wrf_system_list']:
-            source_name = "{}_{}".format(config_data['model'], wrf_system)
+                df = pd.DataFrame()
+                df_initialized = False
 
-            source_id = None
+                for wrf_system in config_data['wrf_system_list']:
+                    source_name = "{}_{}".format(config_data['model'], wrf_system)
 
-            try:
-                source_id = get_source_id(pool=curw_fcst_pool, model=source_name, version=tms_meta['version'])
-            except Exception:
-                try:
-                    time.sleep(3)
-                    source_id = get_source_id(pool=curw_fcst_pool, model=source_name, version=tms_meta['version'])
-                except Exception:
-                    msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(wrf_system)
-                    logger.error(msg)
-                    email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+                    source_id = None
 
-            if source_id is not None:
-                FCST_TS = FCST_Timeseries(curw_fcst_pool)
-                fcst_ts = FCST_TS.get_latest_timeseries(sim_tag=tms_meta['sim_tag'], station_id=d03_station_id,
-                                                   source_id=source_id, variable_id=tms_meta['variable_id'],
-                                                   unit_id=tms_meta['unit_id'])
-                fcst_ts.insert(0, ['time', source_name])
-                fcst_ts_df = list_of_lists_to_df_first_row_as_columns(fcst_ts)
+                    try:
+                        source_id = get_source_id(pool=curw_fcst_pool, model=source_name, version=tms_meta['version'])
+                    except Exception:
+                        try:
+                            time.sleep(3)
+                            source_id = get_source_id(pool=curw_fcst_pool, model=source_name, version=tms_meta['version'])
+                        except Exception:
+                            msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(wrf_system)
+                            logger.error(msg)
+                            email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
 
-                if not df_initialized:
-                    df = fcst_ts_df
-                    df_initialized = True
+                    if source_id is not None:
+                        FCST_TS = FCST_Timeseries(curw_fcst_pool)
+                        fcst_ts = FCST_TS.get_latest_timeseries(sim_tag=tms_meta['sim_tag'], station_id=d03_station_id,
+                                                           source_id=source_id, variable_id=tms_meta['variable_id'],
+                                                           unit_id=tms_meta['unit_id'])
+                        fcst_ts.insert(0, ['time', source_name])
+                        fcst_ts_df = list_of_lists_to_df_first_row_as_columns(fcst_ts)
+
+                        if not df_initialized:
+                            df = fcst_ts_df
+                            df_initialized = True
+                        else:
+                            df = pd.merge(df, fcst_ts_df, how="outer", on='time')
+
+                obs_start = (df['time'].min() - timedelta(minutes=10)).strftime(COMMON_DATE_TIME_FORMAT)
+
+                obs_ts = extract_obs_rain_15_min_ts(connection=curw_obs_pool.connection(), id=hash_id, start_time=obs_start)
+                obs_ts.insert(0, ['time', 'obs'])
+                obs_ts_df = list_of_lists_to_df_first_row_as_columns(obs_ts)
+
+                df = pd.merge(df, obs_ts_df, how="left", on='time')
+
+                df['longitude'] = longitude
+                df['latitude'] = latitude
+                df.set_index(['time', 'longitude', 'latitude'], inplace=True)
+                df = df.dropna()
+
+                if not outer_df_initialized:
+                    dataframe = df
+                    outer_df_initialized = True
                 else:
-                    df = pd.merge(df, fcst_ts_df, how="outer", on='time')
+                    dataframe = dataframe.append(df)
 
-        obs_start = (df['time'].min() - timedelta(minutes=10)).strftime(COMMON_DATE_TIME_FORMAT)
-
-        obs_ts = extract_obs_rain_15_min_ts(connection=curw_obs_pool.connection(), id=hash_id, start_time=obs_start)
-        obs_ts.insert(0, ['time', 'obs'])
-        obs_ts_df = list_of_lists_to_df_first_row_as_columns(obs_ts)
-
-        df = pd.merge(df, obs_ts_df, how="left", on='time')
-
-        df['longitude'] = longitude
-        df['latitude'] = latitude
-        df.set_index(['time', 'longitude', 'latitude'], inplace=True)
-        df = df.dropna()
-
-        if not outer_df_initialized:
-            dataframe = df
-            outer_df_initialized = True
-        else:
-            dataframe = dataframe.append(df)
+    except Exception:
+        msg = "Exception occurred while processing hybrid rfield."
+        logger.error(msg)
+        email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
 
     dataframe.sort_index(inplace=True)
 
