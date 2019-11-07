@@ -7,7 +7,6 @@ import os
 import json
 from datetime import datetime, timedelta
 import time
-import paramiko
 import multiprocessing as mp
 import sys
 import getopt
