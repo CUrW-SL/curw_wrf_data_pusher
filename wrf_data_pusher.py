@@ -57,7 +57,7 @@ def read_attribute_from_config_file(attribute, config):
         msg = "{} not specified in config file.".format(attribute)
         logger.error(msg)
         email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-        sys.exit(1)
+        exit(1)
 
 
 def get_per_time_slot_values(prcp):
@@ -232,8 +232,10 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content
                             try:
                                 ts.insert_run(run_meta)
                             except Exception:
-                                logger.error("Exception occurred while inserting run entry {}".format(run_meta))
+                                msg = "Exception occurred while inserting run entry {}".format(run_meta)
+                                logger.error()
                                 traceback.print_exc()
+                                wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
 
                     data_list = []
                     # generate timeseries for each station
@@ -273,6 +275,7 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
             msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(wrf_system)
             logger.error(msg)
             wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+            traceback.print_exc()
             return wrf_email_content
 
     if source_id is None:
@@ -284,6 +287,7 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
                                                                                           tms_meta['version'])
             logger.error(msg)
             wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+            traceback.print_exc()
             return wrf_email_content
 
     tms_meta['model'] = source_name
@@ -420,6 +424,7 @@ if __name__ == "__main__":
             msg = "Exception occurred while loading common metadata from database."
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+            traceback.print_exc()
             sys.exit(1)
 
         tms_meta = {

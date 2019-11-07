@@ -228,8 +228,10 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta):
                             try:
                                 ts.insert_run(run_meta)
                             except Exception:
-                                logger.error("Exception occurred while inserting run entry {}".format(run_meta))
+                                msg = "Exception occurred while inserting run entry {}".format(run_meta)
+                                logger.error(msg)
                                 traceback.print_exc()
+                                email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
 
                     data_list = []
                     # generate timeseries for each station
@@ -262,6 +264,7 @@ def extract_wrf_data(config_data, tms_meta):
             msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(config_data['wrf_system'])
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+            traceback.print_exc()
 
     if source_id is None:
         try:
@@ -272,6 +275,7 @@ def extract_wrf_data(config_data, tms_meta):
                                                                                           tms_meta['version'])
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+            traceback.print_exc()
 
     tms_meta['model'] = source_name
     tms_meta['source_id'] = source_id
@@ -424,6 +428,7 @@ if __name__ == "__main__":
             msg = "Exception occurred while loading common metadata from database."
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+            traceback.print_exc()
             sys.exit(1)
 
         tms_meta = {
