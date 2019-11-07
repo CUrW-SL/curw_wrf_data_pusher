@@ -63,7 +63,7 @@ def read_attribute_from_config_file(attribute, config):
         msg = "{} not specified in config file.".format(attribute)
         logger.error(msg)
         email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-        sys.exit(1)
+        exit(1)
 
 
 def get_per_time_slot_values(prcp):
@@ -429,7 +429,7 @@ if __name__ == "__main__":
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
             traceback.print_exc()
-            sys.exit(1)
+            exit(1)
 
         tms_meta = {
             'sim_tag': sim_tag,
