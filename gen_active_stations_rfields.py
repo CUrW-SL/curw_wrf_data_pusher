@@ -214,6 +214,7 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
         msg = "Exception occurred while processing hybrid rfield."
         logger.error(msg)
         email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+        traceback.print_exc()
         exit(1)
 
     dataframe.sort_index(inplace=True)
