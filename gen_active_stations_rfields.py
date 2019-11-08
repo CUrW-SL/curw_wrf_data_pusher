@@ -178,12 +178,14 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
                         exit(1)
 
                 if source_id is not None:
+                    print(source_id)
                     FCST_TS = FCST_Timeseries(curw_fcst_pool)
                     fcst_ts = FCST_TS.get_latest_timeseries(sim_tag=tms_meta['sim_tag'], station_id=d03_station_id,
                                                        source_id=source_id, variable_id=tms_meta['variable_id'],
                                                        unit_id=tms_meta['unit_id'])
                     fcst_ts.insert(0, ['time', source_name])
                     fcst_ts_df = list_of_lists_to_df_first_row_as_columns(fcst_ts)
+                    print("fcst_ts_df", fcst_ts_df)
 
                     if not df_initialized:
                         df = fcst_ts_df
@@ -191,7 +193,6 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
                     else:
                         df = pd.merge(df, fcst_ts_df, how="outer", on='time')
 
-            print(df)
             obs_start = (df['time'].min() - timedelta(minutes=10)).strftime(COMMON_DATE_TIME_FORMAT)
 
             obs_ts = extract_obs_rain_15_min_ts(connection=curw_obs_pool.connection(), id=hash_id, start_time=obs_start)
