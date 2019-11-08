@@ -178,7 +178,7 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
                         exit(1)
 
                 if source_id is not None:
-                    print(source_id)
+                    print(source_id, tms_meta['sim_tag'], d03_station_id, tms_meta['variable_id'], tms_meta['unit_id'])
                     FCST_TS = FCST_Timeseries(curw_fcst_pool)
                     fcst_ts = FCST_TS.get_latest_timeseries(sim_tag=tms_meta['sim_tag'], station_id=d03_station_id,
                                                        source_id=source_id, variable_id=tms_meta['variable_id'],
