@@ -241,7 +241,8 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta):
                         t = datetime_utc_to_lk(ts_time, shift_mins=0)
                         data_list.append([tms_id, t.strftime('%Y-%m-%d %H:%M:00'), fgt, float('%.3f' % diff[i, y, x])])
 
-                    push_rainfall_to_db(ts=ts, ts_data=data_list, tms_id=tms_id, fgt=fgt)
+                    if len(data_list) > 0:
+                        push_rainfall_to_db(ts=ts, ts_data=data_list, tms_id=tms_id, fgt=fgt)
         except Exception as e:
             msg = "netcdf file at {} reading error.".format(rainnc_net_cdf_file_path)
             logger.error(msg)

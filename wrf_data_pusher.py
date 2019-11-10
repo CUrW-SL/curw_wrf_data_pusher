@@ -233,7 +233,7 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content
                                 ts.insert_run(run_meta)
                             except Exception:
                                 msg = "Exception occurred while inserting run entry {}".format(run_meta)
-                                logger.error()
+                                logger.error(msg)
                                 traceback.print_exc()
                                 wrf_email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
 
@@ -245,7 +245,8 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content
                         t = datetime_utc_to_lk(ts_time, shift_mins=0)
                         data_list.append([tms_id, t.strftime('%Y-%m-%d %H:%M:00'), fgt, float('%.3f' % diff[i, y, x])])
 
-                    push_rainfall_to_db(ts=ts, ts_data=data_list, tms_id=tms_id, fgt=fgt,
+                    if len(data_list) > 0:
+                        push_rainfall_to_db(ts=ts, ts_data=data_list, tms_id=tms_id, fgt=fgt,
                                         wrf_email_content=wrf_email_content)
         except Exception as e:
             msg = "netcdf file at {} reading error.".format(rainnc_net_cdf_file_path)
