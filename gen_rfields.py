@@ -158,6 +158,12 @@ def create_d03_rfields(d03_rainnc_netcdf_file_path, config_data):
 
             diff = get_per_time_slot_values(rainnc)
 
+            if len(diff) < 1:
+                msg = "The timeseies of the netcdf at {} is empty".format(
+                    d03_rainnc_netcdf_file_path)
+                email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+                exit(1)
+
             width = len(lons)
             height = len(lats)
 
@@ -272,6 +278,12 @@ def create_d01_rfields(d01_rainnc_netcdf_file_path, config_data):
             nnc_fid.close()
 
             diff = get_per_time_slot_values(rainnc)
+
+            if len(diff) < 1:
+                msg = "The timeseies of the netcdf at {} is empty".format(
+                    d01_rainnc_netcdf_file_path)
+                email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+                exit(1)
 
             width = len(lons)
             height = len(lats)
