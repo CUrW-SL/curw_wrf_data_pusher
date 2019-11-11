@@ -181,6 +181,12 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta):
 
             diff = get_per_time_slot_values(rainnc)
 
+            if len(diff) < 1:
+                msg = "The timeseies of the netcdf at {} is empty".format(
+                    rainnc_net_cdf_file_path)
+                email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+                exit(1)
+
             width = len(lons)
             height = len(lats)
 
