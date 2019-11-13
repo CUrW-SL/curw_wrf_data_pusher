@@ -264,7 +264,7 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content
 
 
 def extract_wrf_data(wrf_system, config_data, tms_meta):
-    logger.info("-- {} --".format(wrf_system))
+    print("-- {} --".format(wrf_system))
 
     wrf_email_content = {}
 
