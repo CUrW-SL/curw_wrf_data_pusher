@@ -218,8 +218,6 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content
                     tms_id = ts.get_timeseries_id_if_exists(tms_meta)
 
                     if tms_id is None:
-                        tms_id = ts.generate_timeseries_id(tms_meta)
-
                         run_meta = {
                             'tms_id': tms_id,
                             'sim_tag': tms_meta['sim_tag'],
@@ -230,6 +228,8 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content
                             'unit_id': tms_meta['unit_id'],
                             'variable_id': tms_meta['variable_id']
                         }
+
+                        tms_id = ts.generate_timeseries_id(tms_meta)
 
                         try:
                             ts.insert_run(run_meta)
