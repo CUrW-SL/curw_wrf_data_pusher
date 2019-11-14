@@ -218,10 +218,10 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content
                     tms_id = ts.get_timeseries_id_if_exists(tms_meta)
 
                     if tms_id is None:
-                        print("###################")
-                        print('netcdf', rainnc_net_cdf_file_path)
-                        print('tms_meta', tms_meta['source_id'])
+                        tms_id = ts.generate_timeseries_id(tms_meta)
+
                         run_meta = {
+                            'tms_id': tms_id,
                             'sim_tag': tms_meta['sim_tag'],
                             'start_date': start_date,
                             'end_date': end_date,
@@ -230,11 +230,6 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content
                             'unit_id': tms_meta['unit_id'],
                             'variable_id': tms_meta['variable_id']
                         }
-
-                        tms_id = ts.generate_timeseries_id(tms_meta)
-
-                        run_meta['tms_id'] = tms_id
-                        print('run_meta: ', run_meta['source_id'])
 
                         try:
                             ts.insert_run(run_meta)
@@ -314,6 +309,11 @@ def extract_wrf_data(wrf_system, config_data, tms_meta):
     rainnc_net_cdf_file = 'd03_RAINNC.nc'
 
     rainnc_net_cdf_file_path = os.path.join(output_dir, rainnc_net_cdf_file)
+
+    print("##################################")
+    print("netcdf:", rainnc_net_cdf_file_path)
+    print("source_id", source_id)
+    print("tms_meta:", tms_meta['source_id'])
 
     wrf_email_content = read_netcdf_file(pool=pool, rainnc_net_cdf_file_path=rainnc_net_cdf_file_path, tms_meta=tms_meta,
                             wrf_email_content=wrf_email_content)
