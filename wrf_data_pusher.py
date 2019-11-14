@@ -219,7 +219,6 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content
 
                     if tms_id is None:
                         run_meta = {
-                            'tms_id': tms_id,
                             'sim_tag': tms_meta['sim_tag'],
                             'start_date': start_date,
                             'end_date': end_date,
@@ -230,6 +229,8 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content
                         }
 
                         tms_id = ts.generate_timeseries_id(tms_meta)
+
+                        run_meta['tms_id'] = tms_id
 
                         try:
                             ts.insert_run(run_meta)
