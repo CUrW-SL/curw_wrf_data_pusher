@@ -217,6 +217,10 @@ def read_netcdf_file(pool, rainnc_net_cdf_file_path, tms_meta, wrf_email_content
 
                     tms_id = ts.get_timeseries_id_if_exists(tms_meta)
 
+                    if tms_id is None:  # retry retrieving tms id
+                        time.sleep(3)
+                        tms_id = ts.get_timeseries_id_if_exists(tms_meta)
+
                     if tms_id is None:
                         tms_id = ts.generate_timeseries_id(tms_meta)
 
