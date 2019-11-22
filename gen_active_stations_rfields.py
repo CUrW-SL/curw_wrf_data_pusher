@@ -221,8 +221,9 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
 
     try:
         dataframe.to_csv(os.path.join(local_rfield_home,
-                                      '{}_{}_{}_15min_hybrid_rfield.csv'.
-                                      format(config_data['wrf_type'], config_data['gfs_run'], config_data['gfs_data_hour'])),
+                                      '{}_{}_{}_{}_15min_hybrid_rfield.csv'.
+                                      format(config_data['wrf_type'], config_data['gfs_run'], config_data['gfs_data_hour'],
+                                             '_'.join(config['wrf_system_list']))),
                          header=True, index=True)
 
         dataframe.to_csv(os.path.join(bucket_rfield_home,
