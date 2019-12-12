@@ -39,11 +39,11 @@ fi
 
 date=$1
 config_file_path="config/wrf_d0_18_config.json"
-
 if [ -z $date ]
 then
   date=$(date -u -d '+5 hour +30 min' '+%F')
 fi
+
 
 ## Push WRF data into the database
 echo "Running scripts to extract wrf data parallely. Logs Available in wrf_data_pusher.log file."
