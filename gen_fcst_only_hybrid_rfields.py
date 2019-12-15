@@ -17,6 +17,7 @@ from db_adapter.curw_fcst.unit import get_unit_id, UnitType
 from db_adapter.curw_fcst.station import get_wrf_stations
 from db_adapter.curw_fcst.timeseries import Timeseries as FCST_Timeseries
 from db_adapter.curw_sim.grids import get_obs_to_d03_grid_mappings_for_rainfall, GridInterpolationEnum
+from db_adapter.constants import CURW_OBS_USERNAME, CURW_OBS_DATABASE, CURW_OBS_HOST, CURW_OBS_PASSWORD, CURW_OBS_PORT
 from db_adapter.constants import CURW_FCST_DATABASE, CURW_FCST_PASSWORD, CURW_FCST_USERNAME, CURW_FCST_PORT, \
     CURW_FCST_HOST
 from db_adapter.constants import CURW_SIM_DATABASE, CURW_SIM_PASSWORD, CURW_SIM_USERNAME, CURW_SIM_PORT, CURW_SIM_HOST
@@ -350,6 +351,8 @@ if __name__ == "__main__":
 
         curw_fcst_pool = get_Pool(host=CURW_FCST_HOST, user=CURW_FCST_USERNAME, password=CURW_FCST_PASSWORD,
                                   port=CURW_FCST_PORT, db=CURW_FCST_DATABASE)
+        curw_obs_pool = get_Pool(host=CURW_OBS_HOST, port=CURW_OBS_PORT, user=CURW_OBS_USERNAME,
+                                 password=CURW_OBS_PASSWORD, db=CURW_OBS_DATABASE)
         curw_sim_pool = get_Pool(host=CURW_SIM_HOST, user=CURW_SIM_USERNAME, password=CURW_SIM_PASSWORD,
                                  port=CURW_SIM_PORT, db=CURW_SIM_DATABASE)
 
