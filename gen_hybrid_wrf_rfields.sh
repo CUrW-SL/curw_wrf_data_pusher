@@ -45,10 +45,10 @@ wrf_systems=$5
 date=$6
 
 ## Push WRFv4 data into the database
-echo "Running scripts to generate fcst only rfields based on active observational stations. Logs Available in active_stations_rfields.log file."
+echo "Running scripts to generate fcst only rfields based on active observational stations. Logs Available in wrf_fcst_only_rfields.log file."
 echo "Params passed:: config_file_path=$config_file_path, wrf_root_directory=$wrf_root_directory, gfs_run=$gfs_run,
 gfs_data_hour=$gfs_data_hour, wrf_system=$wrf_systems, date=$date"
-./gen_fcst_only_hybrid_rfields.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_systems -D $date >> active_stations_rfields.log 2>&1
+./gen_fcst_only_hybrid_rfields.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_systems -D $date >> wrf_fcst_only_rfields.log 2>&1
 
 # Deactivating virtual environment
 echo "Deactivating virtual environment"
