@@ -38,18 +38,22 @@ then
 fi
 
 date=$1
-config_file_path="config/mwrf_d0_18_config.json"
 if [ -z $date ]
 then
   date=$(date -u -d '+5 hour +30 min' '+%F')
 fi
 
-nohup ./wrf_data_pusher_seq.sh config/mwrf_config.json /mnt/disks/wrf_nfs/wrf d0 00 T5 2019-11-19
+config_file_path="config/mwrf_config.json"
+wrf_root_directory="/mnt/disks/wrf_nfs/wrf"
+gfs_run='d0'
+gfs_data_hour='18'
+wrf_system="T5"
 
-## Push WRF data into the database
-echo "Running scripts to extract wrf data parallely. Logs Available in wrf_data_pusher.log file."
-echo "Params passed :: config_file_path=$config_file_path, date=$date"
-./wrf_data_pusher.py -c $config_file_path -D $date >> wrf_data_pusher_d0_18.log 2>&1
+## Push mwrf data into the database
+echo "Running scripts to extract wrf data sequentially. Logs Available in wrf_data_pusher_seq.log file."
+echo "Params passed :: config_file_path=$config_file_path, wrf_root_directory=$wrf_root_directory, gfs_run=$gfs_run,
+gfs_data_hour=$gfs_data_hour, wrf_system=$wrf_system, date=$date"
+./wrf_data_pusher_seq.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_system -D $date >> wrf_data_pusher_seq.log 2>&1
 
 
 # Deactivating virtual environment
