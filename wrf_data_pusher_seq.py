@@ -107,6 +107,9 @@ def gen_hybrid_rfields(config_file_path, wrf_root_directory, gfs_run, gfs_data_h
     os.system("./gen_active_stations_rfields.sh {} {} {} {} {} {}".
               format(config_file_path, wrf_root_directory, gfs_run, gfs_data_hour, wrf_systems, date))
 
+    os.system("./gen_hybrid_wrf_rfields.sh {} {} {} {} {} {}".
+              format(config_file_path, wrf_root_directory, gfs_run, gfs_data_hour, wrf_systems, date))
+
 
 def push_rainfall_to_db(ts, ts_data, tms_id, fgt):
     """
