@@ -29,11 +29,18 @@ def makedir_if_not_exist(dir_path):
         pass
 
 
-nc_f = "/home/muditha/WRF/Build_WRF/EXPORT/{}_{}_{}_{}/wrfout_d03_{}_{}-00-00"\
-    .format(domain, run_parameter, run_session, run_hours, run_start, gfs_hour)
-#Save RAINNC and RAINC
-ds = xr.open_dataset(nc_f, engine="netcdf4")
-ds.RAINNC.to_netcdf(path="d03_RAINNC.nc",engine="scipy")
+output_dir_path = "/home/muditha/WRF/Build_WRF/EXPORT/{}_{}_{}_{}".format(domain, run_parameter, run_session, run_hours)
+
+d03_nc_f = "{}/wrfout_d03_{}_{}-00-00"\
+    .format(output_dir_path, run_start, gfs_hour)
+d01_nc_f = "{}/wrfout_d01_{}_{}-00-00"\
+    .format(output_dir_path, run_start, gfs_hour)
+
+#Save d03 and d01 RAINNC
+ds3 = xr.open_dataset(d03_nc_f, engine="netcdf4")
+ds1 = xr.open_dataset(d01_nc_f, engine="netcdf4")
+ds3.RAINNC.to_netcdf(path="{}/d03_RAINNC.nc".format(output_dir_path), engine="scipy")
+ds1.RAINNC.to_netcdf(path="{}/d01_RAINNC.nc".format(output_dir_path), engine="scipy")
 # ds.U10.to_netcdf(path="d03_U10.nc",engine="scipy")
 # ds.V10.to_netcdf(path="d03_V10.nc",engine="scipy")
 # ds.U[:,0,:,:].to_netcdf(path="d03_U1.nc",engine="scipy")
@@ -41,7 +48,22 @@ ds.RAINNC.to_netcdf(path="d03_RAINNC.nc",engine="scipy")
 
 output_date = datetime.now().strftime('%Y-%m-%d')
 
-local_d03_RAINNC_file_path = "/home/muditha/python/d03_RAINNC.nc"
+local_d03_RAINNC_file_path = "{}/d03_RAINNC.nc".format(output_dir_path)
+local_d01_RAINNC_file_path = "{}/d01_RAINNC.nc".format(output_dir_path)
 bucket_output_dir = "wrf_nfs/wrf/{}/{}/{}/{}/output/mwrf/{}/".format(wrf_version, gfs_run, gfs_hour, output_date, model)
 
-os.system("gsutil cp {} gs://{}".format(local_d03_RAINNC_file_path, bucket_output_dir))
+os.system("/home/muditha/google-cloud-sdk/bin/gsutil cp {} gs://{}".format(local_d03_RAINNC_file_path, bucket_output_dir))
+os.system("/home/muditha/google-cloud-sdk/bin/gsutil cp {} gs://{}".format(local_d01_RAINNC_file_path, bucket_output_dir))
+
+# remove unwanted files
+os.system("rm {}/FILE*".format(output_dir_path))
+os.system("rm {}/geo_em*".format(output_dir_path))
+os.system("rm {}/met_em*".format(output_dir_path))
+os.system("rm {}/namelist.*".format(output_dir_path))
+os.system("rm {}/rsl.*".format(output_dir_path))
+os.system("rm {}/wrfbdy*".format(output_dir_path))
+os.system("rm {}/wrfinput*".format(output_dir_path))
+
+
+
+

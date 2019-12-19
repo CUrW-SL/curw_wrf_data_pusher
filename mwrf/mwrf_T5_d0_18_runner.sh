@@ -1,4 +1,8 @@
-#!/usr/bin/env bash
+#!/bin/bash
+
+# remove older log files
+rm /home/muditha/python/extract.log
+cat /dev/null > /home/muditha/python/mwrf_T5_d0_18.log
 
 echo "Running mwrf T5 ... "
 
