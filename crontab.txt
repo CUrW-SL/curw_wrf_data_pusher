@@ -2,9 +2,12 @@
 # WRF EXTRACTIONS #
 ###################
 
-# push wrf-4.0 yesterday 18 hrs run data to new curw_fcst db at 02:30 everyday
-00 21 * * * /home/uwcc-admin/curw_wrf_data_pusher/wrf_runner_d0_18.sh >> /home/uwcc-admin/curw_wrf_data_pusher/wrf_data_pusher_d0_18.log
+# push wrf-4.1.2 yesterday 18 hrs run data to new curw_fcst db at 06:30 everyday
+00 01 * * * /home/uwcc-admin/curw_wrf_data_pusher/wrf_runner_d0_18.sh >> /home/uwcc-admin/curw_wrf_data_pusher/wrf_data_pusher_d0_18.log
 
-# push wrf-4.0 yesterday 00 hrs run data to new curw_fcst db at 08:30 everyday
-00 03 * * * /home/uwcc-admin/curw_wrf_data_pusher/wrf_runner_d0_00.sh >> /home/uwcc-admin/curw_wrf_data_pusher/wrf_data_pusher_d0_00.log
+# push wrf-4.1.2 yesterday 00 hrs run data to new curw_fcst db at 09:00 everyday
+30 03 * * * /home/uwcc-admin/curw_wrf_data_pusher/wrf_runner_d0_00.sh >> /home/uwcc-admin/curw_wrf_data_pusher/wrf_data_pusher_d0_00.log
 
+#### mwrf ####
+# push mwrf-4.0 yesterday 18 hrs run data to new curw_fcst db at 03:30 everyday
+00 22 * * * /home/uwcc-admin/curw_wrf_data_pusher/mwrf_runner_d0_18.sh >> /home/uwcc-admin/curw_wrf_data_pusher/mwrf_data_pusher_d0_18.log
