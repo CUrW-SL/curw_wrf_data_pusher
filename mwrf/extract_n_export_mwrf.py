@@ -31,6 +31,8 @@ def makedir_if_not_exist(dir_path):
 
 output_dir_path = "/home/muditha/WRF/Build_WRF/EXPORT/{}_{}_{}_{}".format(domain, run_parameter, run_session, run_hours)
 
+# nc_f = "/home/muditha/WRF/Build_WRF/EXPORT/trial5_trial5_2019120118_072/wrfout_d03_2019-12-01_18-00-00"
+# /home/muditha/WRF/Build_WRF/EXPORT/trial5_trial5_2019122118_072/wrfout_d03_2019-12-21_18-00-00
 d03_nc_f = "{}/wrfout_d03_{}_{}-00-00"\
     .format(output_dir_path, run_start, gfs_hour)
 d01_nc_f = "{}/wrfout_d01_{}_{}-00-00"\
@@ -50,10 +52,14 @@ output_date = datetime.now().strftime('%Y-%m-%d')
 
 local_d03_RAINNC_file_path = "{}/d03_RAINNC.nc".format(output_dir_path)
 local_d01_RAINNC_file_path = "{}/d01_RAINNC.nc".format(output_dir_path)
-bucket_output_dir = "wrf_nfs/wrf/{}/{}/{}/{}/output/mwrf/{}/".format(wrf_version, gfs_run, gfs_hour, output_date, model)
 
-os.system("/home/muditha/google-cloud-sdk/bin/gsutil cp {} gs://{}".format(local_d03_RAINNC_file_path, bucket_output_dir))
-os.system("/home/muditha/google-cloud-sdk/bin/gsutil cp {} gs://{}".format(local_d01_RAINNC_file_path, bucket_output_dir))
+local_bucket_mnt_dir = "/home/muditha/gbucket"
+bucket_output_dir = "{}/wrf/{}/{}/{}/{}/output/mwrf/{}/".format(local_bucket_mnt_dir, wrf_version, gfs_run, gfs_hour, output_date, model)
+
+makedir_if_not_exist(bucket_output_dir)
+
+os.system("cp {} {}".format(local_d03_RAINNC_file_path, bucket_output_dir))
+os.system("cp {} {}".format(local_d01_RAINNC_file_path, bucket_output_dir))
 
 # remove unwanted files
 os.system("rm {}/FILE*".format(output_dir_path))
@@ -63,7 +69,6 @@ os.system("rm {}/namelist.*".format(output_dir_path))
 os.system("rm {}/rsl.*".format(output_dir_path))
 os.system("rm {}/wrfbdy*".format(output_dir_path))
 os.system("rm {}/wrfinput*".format(output_dir_path))
-
 
 
 
