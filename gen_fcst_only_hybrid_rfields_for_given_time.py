@@ -94,8 +94,11 @@ def makedir_if_not_exist(dir_path):
 
 def select_rectagular_sub_region(all_grids, lon_min=79.6, lon_max=81.0, lat_min=6.6, lat_max=7.4):
     # default is kelani basin
-    selected_grids = all_grids[(all_grids.longitude >= lon_min) & (all_grids.longitude <= lon_max) &
-                                   (all_grids.latitude >= lat_min) & (all_grids.latitude <= lat_max)]
+    # selected_grids = all_grids[(all_grids.longitude >= lon_min) & (all_grids.longitude <= lon_max) &
+    #                                (all_grids.latitude >= lat_min) & (all_grids.latitude <= lat_max)]
+
+    selected_grids = all_grids.query('longitude >= {} & longitude <= {} & latitude >= {} & latitude <= {}'
+                                     .format(lon_min, lon_max, lat_min, lat_max))
 
     return selected_grids
 
