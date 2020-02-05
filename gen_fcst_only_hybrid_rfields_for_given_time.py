@@ -36,8 +36,8 @@ bucket_rfield_home = ''
 
 def usage():
     usageText = """
-    Usage: ./gen_active_stations_rfields.py -c [config_file_path] -d [wrf_root_directory] -r [gfs_run] -H [gfs_data_hour]
-    -s [wrf_system] -D [date] 
+    Usage: ./gen_fcst_only_hybrid_rfields_for_given_time.py -c [config_file_path] -d [wrf_root_directory] -r [gfs_run] -H [gfs_data_hour]
+    -s [wrf_system] -D [date] -f [expected_fgt]
 
     -h  --help          Show usage
     -c  --config        Config file name or path. e.g: "wrf_config.json"
