@@ -32,8 +32,8 @@ KELANI_BASIN_EXTENT = [79.6, 6.6, 81.0, 7.4]
 
 email_content = {}
 
-local_output_root_dir = '/home/uwcc-admin/wrf_rfields'
-local_rfield_home = ''
+# local_output_root_dir = '/home/uwcc-admin/wrf_rfields'
+# local_rfield_home = ''
 bucket_rfield_home = ''
 
 
@@ -221,11 +221,11 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
     dataframe.sort_index(inplace=True)
 
     try:
-        dataframe.to_csv(os.path.join(local_rfield_home,
-                                      '{}_{}_{}_{}_15min_hybrid_rfield.csv'.
-                                      format(config_data['wrf_type'], config_data['gfs_run'], config_data['gfs_data_hour'],
-                                             '_'.join(config_data['wrf_system_list']))),
-                         header=True, index=True)
+        # dataframe.to_csv(os.path.join(local_rfield_home,
+        #                               '{}_{}_{}_{}_15min_hybrid_rfield.csv'.
+        #                               format(config_data['wrf_type'], config_data['gfs_run'], config_data['gfs_data_hour'],
+        #                                      '_'.join(config_data['wrf_system_list']))),
+        #                  header=True, index=True)
 
         dataframe.to_csv(os.path.join(bucket_rfield_home,
                                       '{}_{}_{}_{}_15min_hybrid_rfield.csv'.
@@ -415,14 +415,14 @@ if __name__ == "__main__":
 
         active_obs_stations = extract_active_curw_obs_rainfall_stations(curw_obs_pool)
 
-        local_rfield_home = os.path.join(local_output_root_dir, config_data['version'], config_data['gfs_run'],
-                                         config_data['gfs_data_hour'], 'rfields', config_data['wrf_type'])
+        # local_rfield_home = os.path.join(local_output_root_dir, config_data['version'], config_data['gfs_run'],
+        #                                  config_data['gfs_data_hour'], 'rfields', config_data['wrf_type'])
 
         bucket_rfield_home = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
                                   config_data['gfs_data_hour'], config_data['date'], 'rfields', config_data['wrf_type'])
 
         # make rfield directories
-        makedir_if_not_exist(local_rfield_home)
+        # makedir_if_not_exist(local_rfield_home)
         makedir_if_not_exist(bucket_rfield_home)
 
         prepare_active_obs_stations_based_rfield(curw_fcst_pool=curw_fcst_pool, curw_sim_pool=curw_sim_pool,
