@@ -455,7 +455,6 @@ if __name__ == "__main__":
     finally:
         if curw_fcst_pool is not None:
             destroy_Pool(curw_fcst_pool)
-            destroy_Pool(curw_fcst_pool)
         if curw_obs_pool is not None:
             destroy_Pool(curw_obs_pool)
         if curw_sim_pool is not None:
