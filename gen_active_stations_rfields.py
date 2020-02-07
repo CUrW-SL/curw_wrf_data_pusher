@@ -34,7 +34,8 @@ email_content = {}
 
 local_output_root_dir = '/home/uwcc-admin/wrf_rfields'
 local_rfield_home = ''
-bucket_rfield_home = ''
+bucket_rfield_home_d03 = ''
+bucket_rfield_home_d03_kelani_basin = ''
 
 
 def usage():
@@ -91,6 +92,14 @@ def makedir_if_not_exist(dir_path):
     except FileExistsError:
         # directory already exists
         pass
+
+
+def select_rectagular_sub_region(all_grids, lon_min=79.6, lon_max=81.0, lat_min=6.6, lat_max=7.4):
+
+    selected_grids = all_grids.query('longitude >= {} & longitude <= {} & latitude >= {} & latitude <= {}'
+                                     .format(lon_min, lon_max, lat_min, lat_max))
+
+    return selected_grids
 
 
 def extract_active_curw_obs_rainfall_stations(curw_obs_pool):
@@ -219,6 +228,8 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
 
     dataframe.sort_index(inplace=True)
 
+    kelani_basin_df = select_rectagular_sub_region(all_grids=dataframe)
+
     try:
         dataframe.to_csv(os.path.join(local_rfield_home,
                                       '{}_{}_{}_{}_15min_hybrid_rfield.csv'.
@@ -226,9 +237,16 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
                                              '_'.join(config_data['wrf_system_list']))),
                          header=True, index=True)
 
-        dataframe.to_csv(os.path.join(bucket_rfield_home,
+        dataframe.to_csv(os.path.join(bucket_rfield_home_d03,
                                       '{}_{}_{}_{}_15min_hybrid_rfield.csv'.
                                       format(config_data['wrf_type'], config_data['gfs_run'], config_data['gfs_data_hour'],
+                                             '_'.join(config_data['wrf_system_list']))),
+                         header=True, index=True)
+
+        kelani_basin_df.to_csv(os.path.join(bucket_rfield_home_d03_kelani_basin,
+                                      '{}_{}_{}_{}_15min_hybrid_rfield.csv'.
+                                      format(config_data['wrf_type'], config_data['gfs_run'],
+                                             config_data['gfs_data_hour'],
                                              '_'.join(config_data['wrf_system_list']))),
                          header=True, index=True)
     except Exception:
@@ -407,12 +425,18 @@ if __name__ == "__main__":
         local_rfield_home = os.path.join(local_output_root_dir, config_data['version'], config_data['gfs_run'],
                                          config_data['gfs_data_hour'], 'rfields', config_data['wrf_type'])
 
-        bucket_rfield_home = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
-                                  config_data['gfs_data_hour'], config_data['date'], 'rfields', config_data['wrf_type'])
+        bucket_rfield_home_d03 = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
+                                          config_data['gfs_data_hour'], config_data['date'], 'rfields',
+                                          config_data['wrf_type'], 'd03')
+
+        bucket_rfield_home_d03_kelani_basin = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
+                                          config_data['gfs_data_hour'], config_data['date'], 'rfields',
+                                          config_data['wrf_type'], 'd03_kelani_basin')
 
         # make rfield directories
         makedir_if_not_exist(local_rfield_home)
-        makedir_if_not_exist(bucket_rfield_home)
+        makedir_if_not_exist(bucket_rfield_home_d03)
+        makedir_if_not_exist(bucket_rfield_home_d03_kelani_basin)
 
         prepare_active_obs_stations_based_rfield(curw_fcst_pool=curw_fcst_pool, curw_sim_pool=curw_sim_pool,
                                                  curw_obs_pool=curw_obs_pool,
