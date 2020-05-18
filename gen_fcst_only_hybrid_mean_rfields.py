@@ -9,7 +9,6 @@ import sys
 import getopt
 import pandas as pd
 
-
 from db_adapter.base import get_Pool, destroy_Pool
 
 from db_adapter.curw_fcst.source import get_source_id
@@ -18,17 +17,15 @@ from db_adapter.curw_fcst.unit import get_unit_id, UnitType
 from db_adapter.curw_fcst.station import get_wrf_stations
 from db_adapter.curw_fcst.timeseries import Timeseries as FCST_Timeseries
 from db_adapter.curw_sim.grids import get_obs_to_d03_grid_mappings_for_rainfall, GridInterpolationEnum
-from db_adapter.curw_sim.common import extract_obs_rain_15_min_ts
-from db_adapter.constants import CURW_FCST_DATABASE, CURW_FCST_PASSWORD, CURW_FCST_USERNAME, CURW_FCST_PORT,\
-    CURW_FCST_HOST
 from db_adapter.constants import CURW_OBS_USERNAME, CURW_OBS_DATABASE, CURW_OBS_HOST, CURW_OBS_PASSWORD, CURW_OBS_PORT
+from db_adapter.constants import CURW_FCST_DATABASE, CURW_FCST_PASSWORD, CURW_FCST_USERNAME, CURW_FCST_PORT, \
+    CURW_FCST_HOST
 from db_adapter.constants import CURW_SIM_DATABASE, CURW_SIM_PASSWORD, CURW_SIM_USERNAME, CURW_SIM_PORT, CURW_SIM_HOST
 from db_adapter.constants import COMMON_DATE_TIME_FORMAT
 from db_adapter.logger import logger
 
 SRI_LANKA_EXTENT = [79.5213, 5.91948, 81.879, 9.83506]
 KELANI_BASIN_EXTENT = [79.6, 6.6, 81.0, 7.4]
-
 
 email_content = {}
 
@@ -37,10 +34,9 @@ local_rfield_home = ''
 bucket_rfield_home_d03 = ''
 bucket_rfield_home_d03_kelani_basin = ''
 
-
 def usage():
     usageText = """
-    Usage: ./gen_active_stations_based_mean_wrf_rfields.py -c [config_file_path] -d [wrf_root_directory] -r [gfs_run] -H [gfs_data_hour]
+    Usage: ./gen_fcst_only_hybrid_rfields.py -c [config_file_path] -d [wrf_root_directory] -r [gfs_run] -H [gfs_data_hour]
     -s [wrf_system] -D [date] 
 
     -h  --help          Show usage
@@ -95,6 +91,7 @@ def makedir_if_not_exist(dir_path):
 
 
 def select_rectagular_sub_region(all_grids, lon_min=79.6, lon_max=81.0, lat_min=6.6, lat_max=7.4):
+    # default is kelani basin
 
     selected_grids = all_grids.query('longitude >= {} & longitude <= {} & latitude >= {} & latitude <= {}'
                                      .format(lon_min, lon_max, lat_min, lat_max))
@@ -120,7 +117,7 @@ def extract_active_curw_obs_rainfall_stations(curw_obs_pool):
 
             for result in results:
                 obs_stations[str(result.get('station_id'))] = [result.get('hash_id'), result.get('station_name'),
-                                     result.get('latitude'), result.get('longitude')]
+                                                               result.get('latitude'), result.get('longitude')]
 
         return obs_stations
 
@@ -133,15 +130,15 @@ def extract_active_curw_obs_rainfall_stations(curw_obs_pool):
         connection.close()
 
 
-def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw_obs_pool, tms_meta, config_data, active_obs_stations):
-
+def prepare_active_obs_stations_based_fcst_rfield(curw_fcst_pool, curw_sim_pool, tms_meta, config_data,
+                                             active_obs_stations):
     FCST_TS = FCST_Timeseries(curw_fcst_pool)
 
     try:
         grid_interpolation = GridInterpolationEnum.getAbbreviation(GridInterpolationEnum.MDPA)
 
         obs_to_d03_grid_mapping = get_obs_to_d03_grid_mappings_for_rainfall(pool=curw_sim_pool,
-                                                                        grid_interpolation=grid_interpolation)
+                                                                            grid_interpolation=grid_interpolation)
     except Exception:
         msg = "Exception occurred while loading rainfall obs station to d03 station grid maps."
         logger.error(msg)
@@ -163,16 +160,14 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
         for obs_id in active_obs_stations.keys():
             print('obs id, ', obs_id)
 
+            d03_stations = obs_to_d03_dict.get(obs_id)
             latitude = active_obs_stations.get(obs_id)[2]
             longitude = active_obs_stations.get(obs_id)[3]
-            hash_id = active_obs_stations.get(obs_id)[0]
 
             df = pd.DataFrame()
             df_initialized = False
 
             for wrf_system in config_data['wrf_system_list']:
-                d03_stations = obs_to_d03_dict.get(obs_id)
-
                 source_name = "{}_{}".format(config_data['model'], wrf_system)
 
                 source_id = None
@@ -184,7 +179,8 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
                         time.sleep(3)
                         source_id = get_source_id(pool=curw_fcst_pool, model=source_name, version=tms_meta['version'])
                     except Exception:
-                        msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(wrf_system)
+                        msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(
+                            wrf_system)
                         logger.error(msg)
                         email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
                         exit(1)
@@ -196,8 +192,8 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
                     for d03_station_id in d03_stations:
 
                         fcst_ts = FCST_TS.get_latest_timeseries(sim_tag=tms_meta['sim_tag'], station_id=d03_station_id,
-                                                           source_id=source_id, variable_id=tms_meta['variable_id'],
-                                                           unit_id=tms_meta['unit_id'])
+                                                                source_id=source_id, variable_id=tms_meta['variable_id'],
+                                                                unit_id=tms_meta['unit_id'])
                         fcst_ts.insert(0, ['time', d03_station_id])
                         fcst_ts_df = list_of_lists_to_df_first_row_as_columns(fcst_ts)
 
@@ -214,14 +210,6 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
                         df_initialized = True
                     else:
                         df = pd.merge(df, mean_ts_df, how="outer", on='time')
-
-            obs_start = (df['time'].min() - timedelta(minutes=10)).strftime(COMMON_DATE_TIME_FORMAT)
-
-            obs_ts = extract_obs_rain_15_min_ts(connection=curw_obs_pool.connection(), id=hash_id, start_time=obs_start)
-            obs_ts.insert(0, ['time', 'obs'])
-            obs_ts_df = list_of_lists_to_df_first_row_as_columns(obs_ts)
-
-            df = pd.merge(df, obs_ts_df, how="left", on='time')
 
             df['longitude'] = longitude
             df['latitude'] = latitude
@@ -247,19 +235,21 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
 
     try:
         dataframe.to_csv(os.path.join(local_rfield_home,
-                                      '{}_{}_{}_{}_15min_hybrid_mean_rfield.csv'.
-                                      format(config_data['wrf_type'], config_data['gfs_run'], config_data['gfs_data_hour'],
+                                      '{}_{}_{}_{}_15min_hybrid_fcst_mean_rfield.csv'.
+                                      format(config_data['wrf_type'], config_data['gfs_run'],
+                                             config_data['gfs_data_hour'],
                                              '_'.join(config_data['wrf_system_list']))),
                          header=True, index=True)
 
         dataframe.to_csv(os.path.join(bucket_rfield_home_d03,
-                                      '{}_{}_{}_{}_15min_hybrid_mean_rfield.csv'.
-                                      format(config_data['wrf_type'], config_data['gfs_run'], config_data['gfs_data_hour'],
+                                      '{}_{}_{}_{}_15min_hybrid_fcst_mean_rfield.csv'.
+                                      format(config_data['wrf_type'], config_data['gfs_run'],
+                                             config_data['gfs_data_hour'],
                                              '_'.join(config_data['wrf_system_list']))),
                          header=True, index=True)
 
         kelani_basin_df.to_csv(os.path.join(bucket_rfield_home_d03_kelani_basin,
-                                      '{}_{}_{}_{}_15min_hybrid_mean_rfield.csv'.
+                                      '{}_{}_{}_{}_15min_hybrid_fcst_mean_rfield.csv'.
                                       format(config_data['wrf_type'], config_data['gfs_run'],
                                              config_data['gfs_data_hour'],
                                              '_'.join(config_data['wrf_system_list']))),
@@ -278,12 +268,12 @@ if __name__ == "__main__":
     {
       "version": "4.0",
       "wrf_type": "dwrf",
-    
+
       "model": "WRF",
-    
+
       "unit": "mm",
       "unit_type": "Accumulative",
-    
+
       "variable": "Precipitation"
     }
 
@@ -453,8 +443,7 @@ if __name__ == "__main__":
         makedir_if_not_exist(bucket_rfield_home_d03)
         makedir_if_not_exist(bucket_rfield_home_d03_kelani_basin)
 
-        prepare_active_obs_stations_based_rfield(curw_fcst_pool=curw_fcst_pool, curw_sim_pool=curw_sim_pool,
-                                                 curw_obs_pool=curw_obs_pool,
+        prepare_active_obs_stations_based_fcst_rfield(curw_fcst_pool=curw_fcst_pool, curw_sim_pool=curw_sim_pool,
                                                  tms_meta=tms_meta, config_data=config_data,
                                                  active_obs_stations=active_obs_stations)
 
@@ -471,5 +460,5 @@ if __name__ == "__main__":
         if curw_sim_pool is not None:
             destroy_Pool(curw_sim_pool)
         print("{} ::: Rfield Generation Process \n::: Email Content {} \n::: Config Data {}"
-                    .format(datetime.now(), json.dumps(email_content), json.dumps(config_data)))
+              .format(datetime.now(), json.dumps(email_content), json.dumps(config_data)))
 

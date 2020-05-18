@@ -137,6 +137,8 @@ def extract_active_curw_obs_rainfall_stations(curw_obs_pool):
 
 def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw_obs_pool, tms_meta, config_data, active_obs_stations):
 
+    FCST_TS = FCST_Timeseries(curw_fcst_pool)
+
     try:
         grid_interpolation = GridInterpolationEnum.getAbbreviation(GridInterpolationEnum.MDPA)
 
@@ -193,7 +195,7 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
                     mean_ts_df = pd.DataFrame()
 
                     for d03_station_id in d03_stations:
-                        FCST_TS = FCST_Timeseries(curw_fcst_pool)
+
                         fcst_ts = FCST_TS.get_nearest_timeseries(sim_tag=tms_meta['sim_tag'], station_id=d03_station_id,
                                                            source_id=source_id, variable_id=tms_meta['variable_id'],
                                                            unit_id=tms_meta['unit_id'], expected_fgt=tms_meta['fgt'])
