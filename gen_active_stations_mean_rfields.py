@@ -40,7 +40,7 @@ bucket_rfield_home_d03_kelani_basin = ''
 
 def usage():
     usageText = """
-    Usage: ./gen_active_stations_based_mean_wrf_rfields.py -c [config_file_path] -d [wrf_root_directory] -r [gfs_run] -H [gfs_data_hour]
+    Usage: ./gen_active_stations_mean_rfields.py -c [config_file_path] -d [wrf_root_directory] -r [gfs_run] -H [gfs_data_hour]
     -s [wrf_system] -D [date] 
 
     -h  --help          Show usage
