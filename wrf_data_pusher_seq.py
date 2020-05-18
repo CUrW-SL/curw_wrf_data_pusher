@@ -111,6 +111,15 @@ def gen_hybrid_rfields(config_file_path, wrf_root_directory, gfs_run, gfs_data_h
               format(config_file_path, wrf_root_directory, gfs_run, gfs_data_hour, wrf_systems, date))
 
 
+def gen_mean_hybrid_rfields(config_file_path, wrf_root_directory, gfs_run, gfs_data_hour, wrf_systems, date):
+
+    os.system("./gen_active_stations_mean_rfields.sh {} {} {} {} {} {}".
+              format(config_file_path, wrf_root_directory, gfs_run, gfs_data_hour, wrf_systems, date))
+
+    os.system("./gen_hybrid_mean_wrf_rfields.sh {} {} {} {} {} {}".
+              format(config_file_path, wrf_root_directory, gfs_run, gfs_data_hour, wrf_systems, date))
+
+
 def push_rainfall_to_db(ts, ts_data, tms_id, fgt):
     """
 
@@ -314,6 +323,10 @@ def extract_wrf_data(config_data, tms_meta):
                     wrf_system=config_data['wrf_system'], date=config_data['date'])
 
         gen_hybrid_rfields(config_file_path=config_data['config_path'], wrf_root_directory=config_data['wrf_dir'],
+                           gfs_run=config_data['gfs_run'], gfs_data_hour=config_data['gfs_data_hour'],
+                           wrf_systems=config_data['wrf_system'], date=config_data['date'])
+
+        gen_mean_hybrid_rfields(config_file_path=config_data['config_path'], wrf_root_directory=config_data['wrf_dir'],
                            gfs_run=config_data['gfs_run'], gfs_data_hour=config_data['gfs_data_hour'],
                            wrf_systems=config_data['wrf_system'], date=config_data['date'])
 

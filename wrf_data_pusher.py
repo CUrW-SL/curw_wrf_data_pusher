@@ -91,6 +91,15 @@ def gen_hybrid_rfields(config_file_path, wrf_root_directory, gfs_run, gfs_data_h
               format(config_file_path, wrf_root_directory, gfs_run, gfs_data_hour, wrf_systems, date))
 
 
+def gen_mean_hybrid_rfields(config_file_path, wrf_root_directory, gfs_run, gfs_data_hour, wrf_systems, date):
+
+    os.system("./gen_active_stations_mean_rfields.sh {} {} {} {} {} {}".
+              format(config_file_path, wrf_root_directory, gfs_run, gfs_data_hour, wrf_systems, date))
+
+    os.system("./gen_hybrid_mean_wrf_rfields.sh {} {} {} {} {} {}".
+              format(config_file_path, wrf_root_directory, gfs_run, gfs_data_hour, wrf_systems, date))
+
+
 def update_latest_fgt(ts, tms_id, fgt, wrf_email_content):
     try:
         ts.update_latest_fgt(id_=tms_id, fgt=fgt)
@@ -477,6 +486,10 @@ if __name__ == "__main__":
                                        wrf_systems_list])
 
         gen_hybrid_rfields(config_file_path=config_data['config_path'], wrf_root_directory=config_data['wrf_dir'],
+                           gfs_run=config_data['gfs_run'], gfs_data_hour=config_data['gfs_data_hour'],
+                           wrf_systems=wrf_systems, date=config_data['date'])
+
+        gen_mean_hybrid_rfields(config_file_path=config_data['config_path'], wrf_root_directory=config_data['wrf_dir'],
                            gfs_run=config_data['gfs_run'], gfs_data_hour=config_data['gfs_data_hour'],
                            wrf_systems=wrf_systems, date=config_data['date'])
 
