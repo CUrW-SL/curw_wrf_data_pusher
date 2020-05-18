@@ -48,7 +48,7 @@ date=$6
 echo "Running scripts to generate rfields based on active observational stations. Logs Available in active_stations_rfields.log file."
 echo "Params passed:: config_file_path=$config_file_path, wrf_root_directory=$wrf_root_directory, gfs_run=$gfs_run,
 gfs_data_hour=$gfs_data_hour, wrf_system=$wrf_systems, date=$date"
-./gen_active_stations_based_mean_wrf_rfields.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_systems -D $date >> active_stations_rfields.log 2>&1
+./gen_active_stations_mean_rfields.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_systems -D $date >> active_stations_rfields.log 2>&1
 
 # Deactivating virtual environment
 echo "Deactivating virtual environment"
