@@ -11,3 +11,10 @@
 #### mwrf ####
 # push mwrf-4.0 yesterday 18 hrs run data to new curw_fcst db at 03:30 everyday
 00 22 * * * /home/uwcc-admin/curw_wrf_data_pusher/mwrf_runner_d0_18.sh >> /home/uwcc-admin/curw_wrf_data_pusher/mwrf_data_pusher_d0_18.log
+
+
+#################
+FLUSH Bucket Data
+#################
+
+00 00 01 * * /home/uwcc-admin/curw_wrf_data_pusher/flush_older_netcdfs.sh >> flush_netcdf.log 2>&1
