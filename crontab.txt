@@ -13,8 +13,12 @@
 00 22 * * * /home/uwcc-admin/curw_wrf_data_pusher/mwrf_runner_d0_18.sh >> /home/uwcc-admin/curw_wrf_data_pusher/mwrf_data_pusher_d0_18.log
 
 
-#################
-FLUSH Bucket Data
-#################
+##### FLUSH Bucket Data #######
 
-00 00 01 * * /home/uwcc-admin/curw_wrf_data_pusher/flush_older_netcdfs.sh >> flush_netcdf.log 2>&1
+# flush netcdf files older than 90 days from google bucket
+0 1 2 * * /home/uwcc-admin/curw_wrf_data_pusher/flush_older_netcdfs.sh >> /home/uwcc-admin/curw_wrf_data_pusher/flush_netcdf.log 2>&1
+
+
+
+# clear log files
+0 0 1 * * /home/uwcc-admin/curw_wrf_data_pusher/flush_logs.sh
