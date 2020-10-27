@@ -12,6 +12,7 @@ do
 
     if [ $DIFF -gt 90 ]
     then
+      echo "Deleting..."
       echo $file
 #      rm -v $file
     fi
